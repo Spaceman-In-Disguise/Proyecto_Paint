@@ -1,4 +1,5 @@
 ﻿#include "Engine2D.h"
+#include "line.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
@@ -11,6 +12,18 @@ public:
     void setup() override {
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
+
+        Line demoLine(
+            80,
+            80,
+            400,
+            250,
+            colorPincel,
+            [this](int x, int y, const Color& color) {
+                putPixel(x, y, color);
+            }
+        );
+        demoLine.draw();
     }
     // Eventos
     void onkeyDown(int key) override {
