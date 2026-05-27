@@ -2,23 +2,23 @@
 
 #include <cstdlib>
 
-Line::Line(int x0, int y0, int x1, int y1, const Color& color, PixelCallback pixelWriter)
-    : x0(x0), y0(y0), x1(x1), y1(y1), color(color), pixelWriter(std::move(pixelWriter)) {}
+Line::Line(Point p0, Point p1, const Color& color, PixelCallback pixelWriter)
+    : p0(p0), p1(p1), color(color), pixelWriter(std::move(pixelWriter)) {}
 
 void Line::draw() {
-    int dx = std::abs(x1 - x0);
-    int sx = x0 < x1 ? 1 : -1;
-    int dy = -std::abs(y1 - y0);
-    int sy = y0 < y1 ? 1 : -1;
+    int dx = std::abs(p1.x - p0.x);
+    int sx = p0.x < p1.x ? 1 : -1;
+    int dy = -std::abs(p1.y - p0.y);
+    int sy = p0.y < p1.y ? 1 : -1;
     int error = dx + dy;
 
-    int x = x0;
-    int y = y0;
+    int x = p0.x;
+    int y = p0.y;
 
     while (true) {
         pixelWriter(x, y, color);
 
-        if (x == x1 && y == y1) {
+        if (x == p1.x && y == p1.y) {
             break;
         }
 

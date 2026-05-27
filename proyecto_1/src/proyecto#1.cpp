@@ -1,29 +1,38 @@
 ﻿#include "Engine2D.h"
 #include "line.h"
+#include "canvas.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
 private:
+    Canvas canvas;
     Color colorFondo = Color(0.1f, 0.1f, 0.15f);
     Color colorPincel = Color(1.0f, 0.0f, 0.0f);
     bool dibujando = false;
+    enum BrushTypes {
+        LINE,
+        TRIANGLE,
+        RECTANGLE,
+        CIRCLE
+      };
+    enum BrushTypes brush = LINE;
+
+    const Line::PixelCallback pixelWriter;
+
 public:
-    proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas") {}
+    proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
+        pixelWriter([this](int x, int y, const Color& color) { putPixel(x, y, color); }) {}
     void setup() override {
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
-
-        Line demoLine(
-            80,
-            80,
-            400,
-            250,
-            colorPincel,
-            [this](int x, int y, const Color& color) {
-                putPixel(x, y, color);
-            }
+        canvas.addShape(std::make_unique<Line>(
+                Point(80,80),
+                Point(1000,1000),
+                colorPincel,
+                pixelWriter
+            )
         );
-        demoLine.draw();
+        canvas.draw();
     }
     // Eventos
     void onkeyDown(int key) override {
