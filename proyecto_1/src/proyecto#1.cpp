@@ -25,14 +25,7 @@ public:
     void setup() override {
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
-        canvas.addShape(std::make_unique<Line>(
-                Point(80,80),
-                Point(1000,1000),
-                colorPincel,
-                pixelWriter
-            )
-        );
-        canvas.draw();
+
     }
     // Eventos
     void onkeyDown(int key) override {
@@ -42,9 +35,18 @@ public:
     }
     void onMouseButtonDown(int button, double x, double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (!dibujando) {
+                canvas.addShape(std::make_unique<Line>(
+                Point(x,y),
+                Point(x,y),
+                colorPincel,
+                pixelWriter
+                )
+            );
+            }
             dibujando = true;
         }
-        putPixel(x, y, colorPincel);
+        //putPixel(x, y, colorPincel);
     }
     void onMouseButtonUp(int button, double x, double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -57,10 +59,19 @@ public:
             int ix = static_cast<int>(x);
             int iy = static_cast<int>(y);
             putPixel(ix, iy, colorPincel);
+            if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
+                if (const auto latestLine = dynamic_cast<Line*>(latestShape); latestLine != nullptr) {
+                    latestLine->setP1(Point(ix, iy));
+
+
+                }
+            }
         }
+
     }
     void update(float deltaTime) override {
-        // Aquí irían cosas que cambian automáticamente con el tiempo
+        clear(colorFondo);
+        canvas.draw();
     }
     void drawUI() override {
         ImGui::Begin("Herramientas");

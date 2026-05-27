@@ -33,3 +33,7 @@ void Line::draw() {
         }
     }
 }
+
+void Line::setP1(Point new_p1) {
+    this->p1 = new_p1;
+}

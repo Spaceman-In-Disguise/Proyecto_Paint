@@ -10,7 +10,7 @@ public:
 	Line(Point p0, Point p1, const Color& color, PixelCallback pixelWriter);
 
 	void draw() override;
-
+	void setP1(Point new_p1);
 private:
 	Point p0;
 	Point p1;

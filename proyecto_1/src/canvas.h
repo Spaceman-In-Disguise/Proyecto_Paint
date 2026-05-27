@@ -13,6 +13,7 @@ class Canvas {
     public:
     //Add Shape recieving its Pointer
     void addShape(std::unique_ptr<Shape> newShape);
+    Shape* getLastShape();
     void draw();
 private:
     std::vector<std::unique_ptr<Shape>> shapes;
