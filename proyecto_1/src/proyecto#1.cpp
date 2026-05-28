@@ -19,14 +19,14 @@ private:
     int brush = LINE;
     int currentResize = LINE;
 
-    const Canvas::PixelCallback pixelWriter;
-
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
-        pixelWriter([this](int x, int y, const Color& color) { putPixel(x, y, color); }) {}
+        canvas([this](int x, int y, const Color& color) { putPixel(x, y, color); }) {}
     void setup() override {
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
+
+
 
     }
     // Eventos
@@ -44,7 +44,7 @@ public:
                 switch (brush) {
                     case LINE:
                         currentResize = LINE;
-                        canvas.addLine(static_cast<int>(x), static_cast<int>(y), colorPincel);
+                        canvas.addLine(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
                         break;
                     case RECTANGLE:
                         currentResize = RECTANGLE;
@@ -78,7 +78,7 @@ public:
                     break;
                 case LINE:
                     if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
-                        Canvas::resizeLine(ix, iy, latestShape);
+                        Canvas::resizeLine(Point(ix, iy), latestShape);
                     }
                     break;
 

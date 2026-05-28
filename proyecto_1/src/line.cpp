@@ -6,6 +6,10 @@ Line::Line(Point p0, Point p1, const Color& color, PixelCallback pixelWriter)
     : p0(p0), p1(p1), color(color), pixelWriter(std::move(pixelWriter)) {}
 
 void Line::draw() {
+    if (!pixelWriter) {
+        return;
+    }
+
     int dx = std::abs(p1.x - p0.x);
     int sx = p0.x < p1.x ? 1 : -1;
     int dy = -std::abs(p1.y - p0.y);

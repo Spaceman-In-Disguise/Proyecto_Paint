@@ -7,20 +7,27 @@
 
 #include "engine2D.h"
 #include "Shape.h"
+#include "Line.h"
 #include <functional>
 #include <memory>
+
+#include "rectangle.h"
 
 class Canvas {
     public:
 
     using PixelCallback = std::function<void(int, int, const Color&)>;
 
+    explicit Canvas(PixelCallback pixelWriter);
+
     //Add Shape receiving its Pointer
-    void addShape(std::unique_ptr<Shape> newShape);
+    Shape* addShape(std::unique_ptr<Shape> newShape);
     [[nodiscard]] Shape* getLastShape() const;
 
-    void addLine(int x, int y, Color colorPincel);
-    static void resizeLine(int x, int y, Shape* line);
+    Line* addLine(Point p0, Color colorPincel);
+    static void resizeLine(Point p1, Shape* line);
+
+    Rectangle* addRectangle(Point p0, Point p1, Color colorPincel);
 
     void draw();
 private:

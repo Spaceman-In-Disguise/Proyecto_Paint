@@ -4,11 +4,16 @@
 //
 
 #include "canvas.h"
-#include  "line.h"
+
+#include "rectangle.h"
+
+Canvas::Canvas(PixelCallback pixelWriter)
+    : pixelWriter(std::move(pixelWriter)) {}
 
 
-void Canvas::addShape(std::unique_ptr<Shape> newShape) {
+Shape* Canvas::addShape(std::unique_ptr<Shape> newShape) {
     shapes.push_back(std::move(newShape));
+    return shapes.back().get();
 }
 
 Shape* Canvas::getLastShape() const {
@@ -19,24 +24,34 @@ Shape* Canvas::getLastShape() const {
 }
 
 void Canvas::draw() {
-    std::cout << &pixelWriter << std::endl;
     //Iterate through all and render using the draw method
     for (const auto& shape : shapes) {
         shape->draw();
     }
 }
 
-void Canvas::addLine(const int x, const int y, Color colorPincel) {
-        addShape(std::make_unique<Line>(
-            Point(x,y),
-            Point(x,y),
+Line* Canvas::addLine(const Point p0, Color colorPincel) {
+        Shape* newShape = addShape(std::make_unique<Line>(
+            p0,
+            p0,
             colorPincel,
             pixelWriter
         ));
+       return dynamic_cast<Line*>(newShape);
 }
 
-void Canvas::resizeLine(const int x, const int y, Shape* line) {
+void Canvas::resizeLine(const Point p1, Shape* line) {
     if (const auto latestLine = dynamic_cast<Line*>(line); latestLine != nullptr) {
-        latestLine->setP1(Point(x, y));
+        latestLine->setP1(p1);
     }
+}
+
+Rectangle* Canvas::addRectangle(const Point p0, const Point p1, Color colorPincel) {
+    Shape* newShape = addShape(std::make_unique<Rectangle>(
+        p0,
+        p1,
+        colorPincel,
+        pixelWriter
+        ));
+    return dynamic_cast<Rectangle*>(newShape);
 }
