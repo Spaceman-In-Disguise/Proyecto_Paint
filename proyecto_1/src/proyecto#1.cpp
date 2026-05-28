@@ -11,11 +11,13 @@ private:
     bool dibujando = false;
     enum BrushTypes {
         LINE,
-        TRIANGLE,
         RECTANGLE,
-        CIRCLE
+        TRIANGLE,
+        CIRCLE,
+        NONE
       };
-    enum BrushTypes brush = LINE;
+    int brush = LINE;
+    int currentResize = LINE;
 
     const Line::PixelCallback pixelWriter;
 
@@ -31,26 +33,53 @@ public:
     void onkeyDown(int key) override {
         if (key == GLFW_KEY_SPACE) {
             clear(colorFondo);
+            std::cout << brush << std::endl;
         }
     }
+
+    void addLine(const int x, const int y) {
+        canvas.addShape(std::make_unique<Line>(
+            Point(x,y),
+            Point(x,y),
+            colorPincel,
+            pixelWriter
+        ));
+    }
+
+    void resizeLine(const int x, const int y, Shape* shape) {
+        if (const auto latestLine = dynamic_cast<Line*>(shape); latestLine != nullptr) {
+            latestLine->setP1(Point(x, y));
+        }
+    }
+
     void onMouseButtonDown(int button, double x, double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             if (!dibujando) {
-                canvas.addShape(std::make_unique<Line>(
-                Point(x,y),
-                Point(x,y),
-                colorPincel,
-                pixelWriter
-                )
-            );
-            }
             dibujando = true;
+                switch (brush) {
+                    case LINE:
+                        currentResize = LINE;
+                        addLine(x, y);
+                        break;
+                    case RECTANGLE:
+                        currentResize = RECTANGLE;
+                        break;
+                    case TRIANGLE:
+                        currentResize = TRIANGLE;
+                        break;
+                    case CIRCLE:
+                        currentResize = CIRCLE;
+                        break;
+
+                }
+            }
         }
         //putPixel(x, y, colorPincel);
     }
     void onMouseButtonUp(int button, double x, double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             dibujando = false;
+            currentResize = NONE;
         }
     }
     // Evento de movimiento continuo
@@ -58,13 +87,16 @@ public:
         if (dibujando) {
             int ix = static_cast<int>(x);
             int iy = static_cast<int>(y);
-            putPixel(ix, iy, colorPincel);
-            if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
-                if (const auto latestLine = dynamic_cast<Line*>(latestShape); latestLine != nullptr) {
-                    latestLine->setP1(Point(ix, iy));
+            //putPixel(ix, iy, colorPincel);
+            switch (currentResize) {
+                case NONE:
+                    break;
+                case LINE:
+                    if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
+                        resizeLine(ix, iy, latestShape);
+                    }
+                    break;
 
-
-                }
             }
         }
 
@@ -85,6 +117,10 @@ public:
         }
         ImGui::Text("Manten click izquierdo para dibujar.");
         ImGui::Text("Presiona ESPACIO para limpiar.");
+        ImGui::RadioButton("Line", &brush, LINE); ImGui::SameLine();
+        ImGui::RadioButton("Rectangle", &brush, RECTANGLE); ImGui::SameLine();
+        ImGui::RadioButton("Triangle", &brush, TRIANGLE);ImGui::SameLine();
+        ImGui::RadioButton("Circle", &brush, CIRCLE);
         ImGui::End();
     }
 };
