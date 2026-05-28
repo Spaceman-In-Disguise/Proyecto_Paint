@@ -7,11 +7,11 @@
 
 #include "engine2D.h"
 #include "Shape.h"
-#include "Line.h"
 #include <functional>
 #include <memory>
 
-#include "rectangle.h"
+class Line;
+class Rectangle;
 
 class Canvas {
     public:

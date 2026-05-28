@@ -5,6 +5,7 @@
 
 #include "canvas.h"
 
+#include "line.h"
 #include "rectangle.h"
 
 Canvas::Canvas(PixelCallback pixelWriter)

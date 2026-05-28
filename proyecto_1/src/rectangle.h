@@ -4,7 +4,7 @@
 #define PROYECTO_1_RECTANGLE_H
 
 #include "Shape.h"
-#include "Canvas.h"
+#include "canvas.h"
 #include <functional>
 
 class Rectangle : public Shape{
@@ -20,6 +20,7 @@ private:
     Point p1;
     Color color;
     Canvas canvas;
+    PixelCallback pixelWriter;
 };
 
 

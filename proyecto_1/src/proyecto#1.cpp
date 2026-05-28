@@ -26,6 +26,7 @@ public:
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
 
+        canvas.addRectangle(Point(200,200), Point(500, 400), colorPincel);
 
 
     }
