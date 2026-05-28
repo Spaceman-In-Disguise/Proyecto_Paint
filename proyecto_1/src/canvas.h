@@ -7,16 +7,25 @@
 
 #include "engine2D.h"
 #include "Shape.h"
+#include <functional>
 #include <memory>
 
 class Canvas {
     public:
-    //Add Shape recieving its Pointer
+
+    using PixelCallback = std::function<void(int, int, const Color&)>;
+
+    //Add Shape receiving its Pointer
     void addShape(std::unique_ptr<Shape> newShape);
-    Shape* getLastShape();
+    [[nodiscard]] Shape* getLastShape() const;
+
+    void addLine(int x, int y, Color colorPincel);
+    static void resizeLine(int x, int y, Shape* line);
+
     void draw();
 private:
     std::vector<std::unique_ptr<Shape>> shapes;
+    PixelCallback pixelWriter;
 
 };
 

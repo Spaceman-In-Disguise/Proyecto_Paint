@@ -19,7 +19,7 @@ private:
     int brush = LINE;
     int currentResize = LINE;
 
-    const Line::PixelCallback pixelWriter;
+    const Canvas::PixelCallback pixelWriter;
 
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
@@ -37,29 +37,14 @@ public:
         }
     }
 
-    void addLine(const int x, const int y) {
-        canvas.addShape(std::make_unique<Line>(
-            Point(x,y),
-            Point(x,y),
-            colorPincel,
-            pixelWriter
-        ));
-    }
-
-    void resizeLine(const int x, const int y, Shape* shape) {
-        if (const auto latestLine = dynamic_cast<Line*>(shape); latestLine != nullptr) {
-            latestLine->setP1(Point(x, y));
-        }
-    }
-
-    void onMouseButtonDown(int button, double x, double y) override {
+    void onMouseButtonDown(const int button, const double x, const double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             if (!dibujando) {
             dibujando = true;
                 switch (brush) {
                     case LINE:
                         currentResize = LINE;
-                        addLine(x, y);
+                        canvas.addLine(static_cast<int>(x), static_cast<int>(y), colorPincel);
                         break;
                     case RECTANGLE:
                         currentResize = RECTANGLE;
@@ -93,7 +78,7 @@ public:
                     break;
                 case LINE:
                     if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
-                        resizeLine(ix, iy, latestShape);
+                        Canvas::resizeLine(ix, iy, latestShape);
                     }
                     break;
 

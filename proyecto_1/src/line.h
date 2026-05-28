@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef PROYECTO_1_LINE_H
+#define PROYECTO_1_LINE_H
+
 #include "Shape.h"
 #include <functional>
 
@@ -17,3 +20,5 @@ private:
 	Color color;
 	PixelCallback pixelWriter;
 };
+
+#endif //PROYECTO_1_LINE_H
