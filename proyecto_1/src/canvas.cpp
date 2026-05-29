@@ -7,6 +7,9 @@
 
 #include "line.h"
 #include "rectangle.h"
+#include "triangle.h"
+
+#include <cmath>
 
 Canvas::Canvas(PixelCallback pixelWriter)
     : pixelWriter(std::move(pixelWriter)) {}
@@ -62,3 +65,32 @@ void Canvas::resizeRectangle(const Point p1, Shape* rectangle) {
         latestRectangle->setP1(p1);
     }
 }
+
+    Triangle* Canvas::addTriangle(const Point p0, Color colorPincel) {
+        Shape* newShape = addShape(std::make_unique<Triangle>(
+            p0,
+            p0,
+            p0,
+            colorPincel,
+            pixelWriter
+        ));
+        return dynamic_cast<Triangle*>(newShape);
+    }
+
+    void Canvas::resizeTriangle(const Point p1, Shape* triangle) {
+        if (const auto latestTriangle = dynamic_cast<Triangle*>(triangle); latestTriangle != nullptr) {
+            latestTriangle->setP1(p1);
+
+            const Point origin = latestTriangle->getP0();
+            const int dx = p1.x - origin.x;
+            const int dy = p1.y - origin.y;
+
+            const float angle = 0.8660254037844386f;
+            const Point p2(
+                static_cast<int>(std::lround(origin.x + (dx * 0.5f - dy * angle))),
+                static_cast<int>(std::lround(origin.y + (dy * 0.5f + dx * angle)))
+            );
+
+            latestTriangle->setP2(p2);
+        }
+    }

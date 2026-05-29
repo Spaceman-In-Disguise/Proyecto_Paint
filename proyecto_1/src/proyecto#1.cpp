@@ -1,6 +1,7 @@
 ﻿#include "Engine2D.h"
 #include "line.h"
 #include "canvas.h"
+#include "triangle.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
@@ -50,6 +51,7 @@ public:
                         break;
                     case TRIANGLE:
                         currentResize = TRIANGLE;
+                        canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
                         break;
                     case CIRCLE:
                         currentResize = CIRCLE;
@@ -85,6 +87,12 @@ public:
                     if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
                         Canvas::resizeRectangle(Point(ix, iy), latestShape);
                     }
+                    break;
+                case TRIANGLE:
+                    if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
+                        Canvas::resizeTriangle(Point(ix, iy), latestShape);
+                    }
+                    break;
 
 
             }
