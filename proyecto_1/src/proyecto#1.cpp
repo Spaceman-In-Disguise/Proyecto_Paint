@@ -26,9 +26,6 @@ public:
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
 
-        canvas.addRectangle(Point(200,200), Point(500, 400), colorPincel);
-
-
     }
     // Eventos
     void onkeyDown(int key) override {
@@ -49,6 +46,7 @@ public:
                         break;
                     case RECTANGLE:
                         currentResize = RECTANGLE;
+                        canvas.addRectangle(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
                         break;
                     case TRIANGLE:
                         currentResize = TRIANGLE;
@@ -70,10 +68,11 @@ public:
     }
     // Evento de movimiento continuo
     void onMouseMove(double x, double y) override {
+        // ReSharper disable once CppDFAConstantConditions
         if (dibujando) {
+            // ReSharper disable once CppDFAUnreachableCode
             int ix = static_cast<int>(x);
             int iy = static_cast<int>(y);
-            //putPixel(ix, iy, colorPincel);
             switch (currentResize) {
                 case NONE:
                     break;
@@ -82,6 +81,11 @@ public:
                         Canvas::resizeLine(Point(ix, iy), latestShape);
                     }
                     break;
+                case RECTANGLE:
+                    if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
+                        Canvas::resizeRectangle(Point(ix, iy), latestShape);
+                    }
+
 
             }
         }

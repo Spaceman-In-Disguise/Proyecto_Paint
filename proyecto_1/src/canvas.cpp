@@ -47,12 +47,18 @@ void Canvas::resizeLine(const Point p1, Shape* line) {
     }
 }
 
-Rectangle* Canvas::addRectangle(const Point p0, const Point p1, Color colorPincel) {
+Rectangle* Canvas::addRectangle(const Point p0, Color colorPincel) {
     Shape* newShape = addShape(std::make_unique<Rectangle>(
         p0,
-        p1,
+        p0,
         colorPincel,
         pixelWriter
         ));
     return dynamic_cast<Rectangle*>(newShape);
+}
+
+void Canvas::resizeRectangle(const Point p1, Shape* rectangle) {
+    if (const auto latestRectangle = dynamic_cast<Rectangle*>(rectangle); latestRectangle != nullptr) {
+        latestRectangle->setP1(p1);
+    }
 }

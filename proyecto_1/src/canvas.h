@@ -27,7 +27,8 @@ class Canvas {
     Line* addLine(Point p0, Color colorPincel);
     static void resizeLine(Point p1, Shape* line);
 
-    Rectangle* addRectangle(Point p0, Point p1, Color colorPincel);
+    Rectangle* addRectangle(Point p0, Color colorPincel);
+    static void resizeRectangle(Point p1, Shape* rectangle);
 
     void draw();
 private:
