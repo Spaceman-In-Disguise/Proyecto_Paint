@@ -13,6 +13,7 @@
 class Line;
 class Rectangle;
 class Triangle;
+class Circle;
 
 class Canvas {
     public:
@@ -33,6 +34,9 @@ class Canvas {
 
     Triangle* addTriangle(Point p0, Color colorPincel);
     static void resizeTriangle(Point p1, Shape* triangle);
+
+    Circle* addCircle(Point p0, Color colorPincel);
+    static void resizeCircle(Point p1, Shape* circle);
 
     void draw();
 private:

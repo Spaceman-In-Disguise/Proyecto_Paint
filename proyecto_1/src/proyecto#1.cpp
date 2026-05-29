@@ -2,6 +2,7 @@
 #include "line.h"
 #include "canvas.h"
 #include "triangle.h"
+#include "circle.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
@@ -55,6 +56,7 @@ public:
                         break;
                     case CIRCLE:
                         currentResize = CIRCLE;
+                        canvas.addCircle(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
                         break;
 
                 }
@@ -91,6 +93,11 @@ public:
                 case TRIANGLE:
                     if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
                         Canvas::resizeTriangle(Point(ix, iy), latestShape);
+                    }
+                    break;
+                case CIRCLE:
+                    if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
+                        Canvas::resizeCircle(Point(ix, iy), latestShape);
                     }
                     break;
 
