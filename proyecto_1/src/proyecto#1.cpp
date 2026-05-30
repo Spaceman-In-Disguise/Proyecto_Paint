@@ -56,7 +56,7 @@ public:
                         break;
                     case ELLIPSE:
                         currentResize = ELLIPSE;
-                        canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
+                        canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
                         break;
 
                 }

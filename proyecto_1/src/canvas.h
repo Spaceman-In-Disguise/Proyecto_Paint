@@ -35,7 +35,7 @@ class Canvas {
     Triangle* addTriangle(Point p0, bool fill, Color colorPincel);
     static void resizeTriangle(Point p1, Shape* triangle);
 
-    Ellipse* addEllipse(Point p0, Color colorPincel);
+    Ellipse* addEllipse(Point p0, bool fill, Color colorPincel);
     static void resizeEllipse(Point p1, Shape* ellipse);
 
     void draw();

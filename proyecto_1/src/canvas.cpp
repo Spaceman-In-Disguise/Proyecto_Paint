@@ -99,13 +99,14 @@ void Canvas::resizeTriangle(const Point p1, Shape* triangle) {
     }
 }
 
-Ellipse* Canvas::addEllipse(const Point p0, Color colorPincel) {
+Ellipse* Canvas::addEllipse(const Point p0, const bool fill, Color colorPincel) {
     Shape* newShape = addShape(std::make_unique<Ellipse>(
         p0,
         p0,
         colorPincel,
         pixelWriter
     ));
+    newShape->fill = fill;
     return dynamic_cast<Ellipse*>(newShape);
 }
 
