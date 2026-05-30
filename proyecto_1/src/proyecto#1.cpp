@@ -2,7 +2,7 @@
 #include "line.h"
 #include "canvas.h"
 #include "triangle.h"
-#include "circle.h"
+#include "ellipse.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
@@ -14,7 +14,7 @@ class proyecto1 : public Engine2D {
         LINE,
         RECTANGLE,
         TRIANGLE,
-        CIRCLE,
+        ELLIPSE,
         NONE
       };
     int brush = LINE;
@@ -54,9 +54,9 @@ public:
                         currentResize = TRIANGLE;
                         canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
                         break;
-                    case CIRCLE:
-                        currentResize = CIRCLE;
-                        canvas.addCircle(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
+                    case ELLIPSE:
+                        currentResize = ELLIPSE;
+                        canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
                         break;
 
                 }
@@ -95,9 +95,9 @@ public:
                         Canvas::resizeTriangle(Point(ix, iy), latestShape);
                     }
                     break;
-                case CIRCLE:
+                case ELLIPSE:
                     if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
-                        Canvas::resizeCircle(Point(ix, iy), latestShape);
+                        Canvas::resizeEllipse(Point(ix, iy), latestShape);
                     }
                     break;
 
@@ -125,7 +125,7 @@ public:
         ImGui::RadioButton("Line", &brush, LINE); ImGui::SameLine();
         ImGui::RadioButton("Rectangle", &brush, RECTANGLE); ImGui::SameLine();
         ImGui::RadioButton("Triangle", &brush, TRIANGLE);ImGui::SameLine();
-        ImGui::RadioButton("Circle", &brush, CIRCLE);
+        ImGui::RadioButton("Ellipse", &brush, ELLIPSE);
         ImGui::Checkbox("Filling", &filling);
         ImGui::End();
     }

@@ -6,7 +6,7 @@
 #include "canvas.h"
 
 #include "line.h"
-#include "circle.h"
+#include "ellipse.h"
 #include "rectangle.h"
 #include "triangle.h"
 
@@ -99,18 +99,18 @@ void Canvas::resizeTriangle(const Point p1, Shape* triangle) {
     }
 }
 
-Circle* Canvas::addCircle(const Point p0, Color colorPincel) {
-    Shape* newShape = addShape(std::make_unique<Circle>(
+Ellipse* Canvas::addEllipse(const Point p0, Color colorPincel) {
+    Shape* newShape = addShape(std::make_unique<Ellipse>(
         p0,
         p0,
         colorPincel,
         pixelWriter
     ));
-    return dynamic_cast<Circle*>(newShape);
+    return dynamic_cast<Ellipse*>(newShape);
 }
 
-void Canvas::resizeCircle(const Point p1, Shape* circle) {
-    if (const auto latestCircle = dynamic_cast<Circle*>(circle); latestCircle != nullptr) {
-        latestCircle->setP1(p1);
+void Canvas::resizeEllipse(const Point p1, Shape* ellipse) {
+    if (const auto latestEllipse = dynamic_cast<Ellipse*>(ellipse); latestEllipse != nullptr) {
+        latestEllipse->setP1(p1);
     }
 }
