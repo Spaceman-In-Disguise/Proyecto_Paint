@@ -6,7 +6,6 @@
 #include <iostream>
 
 class proyecto1 : public Engine2D {
-private:
     Canvas canvas;
     Color colorFondo = Color(0.1f, 0.1f, 0.15f);
     Color colorPincel = Color(1.0f, 0.0f, 0.0f);
@@ -20,6 +19,7 @@ private:
       };
     int brush = LINE;
     int currentResize = LINE;
+    bool filling = false;
 
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
@@ -48,11 +48,11 @@ public:
                         break;
                     case RECTANGLE:
                         currentResize = RECTANGLE;
-                        canvas.addRectangle(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
+                        canvas.addRectangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
                         break;
                     case TRIANGLE:
                         currentResize = TRIANGLE;
-                        canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
+                        canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
                         break;
                     case CIRCLE:
                         currentResize = CIRCLE;
@@ -126,6 +126,7 @@ public:
         ImGui::RadioButton("Rectangle", &brush, RECTANGLE); ImGui::SameLine();
         ImGui::RadioButton("Triangle", &brush, TRIANGLE);ImGui::SameLine();
         ImGui::RadioButton("Circle", &brush, CIRCLE);
+        ImGui::Checkbox("Filling", &filling);
         ImGui::End();
     }
 };

@@ -29,10 +29,10 @@ class Canvas {
     Line* addLine(Point p0, Color colorPincel);
     static void resizeLine(Point p1, Shape* line);
 
-    Rectangle* addRectangle(Point p0, Color colorPincel);
+    Rectangle* addRectangle(Point p0, bool fill, Color colorPincel);
     static void resizeRectangle(Point p1, Shape* rectangle);
 
-    Triangle* addTriangle(Point p0, Color colorPincel);
+    Triangle* addTriangle(Point p0, bool fill, Color colorPincel);
     static void resizeTriangle(Point p1, Shape* triangle);
 
     Circle* addCircle(Point p0, Color colorPincel);

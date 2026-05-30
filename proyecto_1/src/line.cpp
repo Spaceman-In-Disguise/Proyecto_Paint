@@ -10,6 +10,8 @@ void Line::draw() {
         return;
     }
 
+    position = Point((p0.x + p1.x)/2, (p0.y + p1.y)/2); //Middle Point
+
     int dx = std::abs(p1.x - p0.x);
     int sx = p0.x < p1.x ? 1 : -1;
     int dy = -std::abs(p1.y - p0.y);
@@ -34,6 +36,13 @@ void Line::draw() {
         if (doubledError <= dx) {
             error += dx;
             y += sy;
+        }
+    }
+    if (debug == true) { // Draw Control Middle Point
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                pixelWriter(position.x + i, position.y + j, Color(0,1,0));
+            }
         }
     }
 }

@@ -34,6 +34,17 @@ void Rectangle::draw() {
     canvas.resizeLine(bottomLeft, bottomEdge);
     canvas.resizeLine(bottomRight, rightEdge);
 
+    const int width = abs(bottomRight.x - topLeft.x);
+    const int height = abs(bottomRight.y - topLeft.y);
+
+    if (fill == true) {
+        for (int i = 1; i < width; ++i) {
+            for (int j = 1; j < height; ++j) {
+                pixelWriter(fmin(p0.x,p1.x) + i, fmin(p0.y,p1.y) + j, color);
+            }
+        }
+    }
+
     canvas.draw();
 }
 
