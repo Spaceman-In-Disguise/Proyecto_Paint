@@ -83,16 +83,19 @@ Triangle* Canvas::addTriangle(const Point p0, const bool fill, Color colorPincel
 
 void Canvas::resizeTriangle(const Point p1, Shape* triangle) {
     if (const auto latestTriangle = dynamic_cast<Triangle*>(triangle); latestTriangle != nullptr) {
+        // Set the bottom-right point to the current mouse position
         latestTriangle->setP1(p1);
 
         const Point origin = latestTriangle->getP0();
-        const int dx = p1.x - origin.x;
-        const int dy = p1.y - origin.y;
 
-        const float angle = 0.8660254037844386f;
+        // Calculate the horizontal distance from the top center
+        const int dx = p1.x - origin.x;
+
+        // Mirror p1 across the origin's X-axis to find the bottom-left point.
+        // Keep the Y exactly the same so the base is perfectly flat.
         const Point p2(
-            static_cast<int>(std::lround(origin.x + (dx * 0.5f - dy * angle))),
-            static_cast<int>(std::lround(origin.y + (dy * 0.5f + dx * angle)))
+            origin.x - dx,
+            p1.y
         );
 
         latestTriangle->setP2(p2);

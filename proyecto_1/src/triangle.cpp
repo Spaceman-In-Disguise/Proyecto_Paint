@@ -60,10 +60,15 @@ void Triangle::draw() {
         return;
     }
 
-    //We sort the vertices by height starting with the top one as p0
-    if (p1.y < p0.y) {std::swap(p1, p0);}
-    if (p2.y < p0.y) {std::swap(p2, p0);}
-    if (p2.y < p1.y) {std::swap(p2, p1);}
+    // Create local copies for the rendering math
+    Point t0 = p0;
+    Point t1 = p1;
+    Point t2 = p2;
+
+    // Sort the local copies by height
+    if (t1.y < t0.y) {std::swap(t1, t0);}
+    if (t2.y < t0.y) {std::swap(t2, t0);}
+    if (t2.y < t1.y) {std::swap(t2, t1);}
 
     canvas = Canvas(pixelWriter);
 
@@ -78,30 +83,30 @@ void Triangle::draw() {
     canvas.draw();
 
     if (fill) {
-        //Calculates the x coordinates of the triangle edges
-        const std::vector<int> x01 = interpolate(p0.y, p0.x, p1.y, p1.x);
-        const std::vector<int> x12 = interpolate(p1.y, p1.x, p2.y, p2.x);
-        const std::vector<int> x02 = interpolate(p0.y, p0.x, p2.y, p2.x);
+        // Calculate the edges using the sorted LOCAL copies (t0, t1, t2)
+        const std::vector<int> x01 = interpolate(t0.y, t0.x, t1.y, t1.x);
+        const std::vector<int> x12 = interpolate(t1.y, t1.x, t2.y, t2.x);
+        const std::vector<int> x02 = interpolate(t0.y, t0.x, t2.y, t2.x);
 
-        //TOP of the triangle is FLAT
-        if (p1.y == p0.y) {
+        // TOP of the triangle is FLAT
+        if (t1.y == t0.y) {
             for (std::size_t i = 0; i < x02.size() && i < x12.size(); ++i) {
-                fillSpan(p0.y + static_cast<int>(i), x02[i], x12[i], color, pixelWriter);
+                fillSpan(t0.y + static_cast<int>(i), x02[i], x12[i], color, pixelWriter);
             }
-        //BOTTOM of the triangle is FLAT
-        } else if (p1.y == p2.y) {
+        // BOTTOM of the triangle is FLAT
+        } else if (t1.y == t2.y) {
             for (std::size_t i = 0; i < x01.size() && i < x02.size(); ++i) {
-                fillSpan(p0.y + static_cast<int>(i), x01[i], x02[i], color, pixelWriter);
+                fillSpan(t0.y + static_cast<int>(i), x01[i], x02[i], color, pixelWriter);
             }
-        //Else the triangle is split in two
+        // Else the triangle is split in two
         } else {
             for (std::size_t i = 0; i < x01.size() && i < x02.size(); ++i) {
-                fillSpan(p0.y + static_cast<int>(i), x01[i], x02[i], color, pixelWriter);
+                fillSpan(t0.y + static_cast<int>(i), x01[i], x02[i], color, pixelWriter);
             }
 
-            const int lowerOffset = p1.y - p0.y;
+            const int lowerOffset = t1.y - t0.y;
             for (std::size_t i = 0; i < x12.size() && i + lowerOffset < x02.size(); ++i) {
-                fillSpan(p1.y + static_cast<int>(i), x12[i], x02[i + lowerOffset], color, pixelWriter);
+                fillSpan(t1.y + static_cast<int>(i), x12[i], x02[i + lowerOffset], color, pixelWriter);
             }
         }
     }
