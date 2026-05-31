@@ -11,20 +11,21 @@
 class quadNode {
 
 public:
-    using PixelCallback = std::function<void(int, int, const Color&)>;
-    quadNode();
+    quadNode(Point boundingBox[2], int level);
     ~quadNode();
-    int maxElements = 3;
 
 private:
-    Point position;
-    int numElements;
+    Point boundingBox[2];
+    const int MAX_LEVEL = 5;
+    const int MAX_ELEMENTS = 3;
+    int level;
+    bool isLeaf = false;
+    int numElements = 0;
+    quadNode *children[4] = {nullptr, nullptr, nullptr, nullptr};
+
     std::vector<Shape*> shapes;
     void divideNode();
-    int width;
-    int height;
-    int level;
-    quadNode *children[4];
+    bool isInside(Point shapeBox[2]) const;
 };
 
 

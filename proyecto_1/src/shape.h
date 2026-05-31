@@ -5,7 +5,8 @@
 class Shape {
 public:
 
-    Point position;
+    Point position = Point(0, 0);
+    Point boundingBox[2] = { Point(-1,-1), Point(-1,-1) };
     bool fill = true;
     bool debug = false;
     virtual ~Shape() = default;

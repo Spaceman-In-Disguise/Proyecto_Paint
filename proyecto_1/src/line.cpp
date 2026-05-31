@@ -11,6 +11,8 @@ void Line::draw() {
     }
 
     position = Point((p0.x + p1.x)/2, (p0.y + p1.y)/2); //Middle Point
+    boundingBox[0] = Point(std::min(p0.x,p1.x), std::min(p0.y, p1.y));
+    boundingBox[1] = Point(std::max(p0.x,p1.x), std::max(p0.y, p1.y));
 
     int dx = std::abs(p1.x - p0.x);
     int sx = p0.x < p1.x ? 1 : -1;

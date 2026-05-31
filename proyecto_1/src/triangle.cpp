@@ -72,6 +72,8 @@ void Triangle::draw() {
     if (t2.y < t1.y) {std::swap(t2, t1);}
 
     position = Point((t0.x + t1.x + t2.x) / 3, (t0.y + t1.y + t2.y) / 3);
+    boundingBox[0] = Point(std::min(std::min(p0.x,p1.x), p2.x), t0.y);
+    boundingBox[1] = Point(std::max(std::max(p0.x,p1.x), p2.y), t2.y);
 
     canvas = Canvas(pixelWriter);
 

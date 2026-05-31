@@ -18,6 +18,9 @@ Rectangle::Rectangle(Point p0, Point p1, const Color& color, PixelCallback pixel
 void Rectangle::draw() {
     canvas = Canvas(pixelWriter);
 
+    boundingBox[0] = Point(std::min(p0.x,p1.x), std::min(p0.y, p1.y));
+    boundingBox[1] = Point(std::max(p0.x,p1.x), std::max(p0.y, p1.y));
+
     const Point topLeft = p0;
     const Point topRight(p1.x, p0.y);
     const Point bottomRight = p1;

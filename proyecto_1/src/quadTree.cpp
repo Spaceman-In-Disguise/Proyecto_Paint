@@ -4,3 +4,7 @@
 
 #include "quadTree.h"
 
+/*quadTree::quadTree() {
+
+}
+*/

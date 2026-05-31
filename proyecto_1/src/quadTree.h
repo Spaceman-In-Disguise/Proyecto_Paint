@@ -19,6 +19,7 @@ class quadTree {
     ~quadTree();
     void insert(Point point);
     std::vector<Shape*> getShapesByLeaf(Point point);
+
     private:
     quadNode rootNode;
     Canvas canvas;

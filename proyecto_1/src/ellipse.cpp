@@ -41,6 +41,8 @@ void Ellipse::draw() {
     );
 
     position = center;
+    boundingBox[0] = Point(left, top);
+    boundingBox[1] = Point(right, bottom);
 
     const int rx = (right - left) / 2;
     const int ry = (bottom - top) / 2;
