@@ -13,7 +13,11 @@ add_executable (proyecto1 "src/proyecto#1.cpp" "src/proyecto#1.h" "src/engine2D.
         src/triangle.cpp
         src/triangle.h
         src/ellipse.cpp
-        src/ellipse.h)
+        src/ellipse.h
+        src/quadTree.cpp
+        src/quadTree.h
+        src/quadNode.cpp
+        src/quadNode.h)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET proyecto1 PROPERTY CXX_STANDARD 20)

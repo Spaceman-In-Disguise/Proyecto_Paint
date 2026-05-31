@@ -40,6 +40,8 @@ void Ellipse::draw() {
         static_cast<int>(std::lround((top + bottom) * 0.5))
     );
 
+    position = center;
+
     const int rx = (right - left) / 2;
     const int ry = (bottom - top) / 2;
 

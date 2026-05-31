@@ -9,6 +9,7 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <cstdlib>
 #include <utility>
 
 namespace {
@@ -69,6 +70,8 @@ void Triangle::draw() {
     if (t1.y < t0.y) {std::swap(t1, t0);}
     if (t2.y < t0.y) {std::swap(t2, t0);}
     if (t2.y < t1.y) {std::swap(t2, t1);}
+
+    position = Point((t0.x + t1.x + t2.x) / 3, (t0.y + t1.y + t2.y) / 3);
 
     canvas = Canvas(pixelWriter);
 

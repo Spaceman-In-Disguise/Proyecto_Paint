@@ -5,7 +5,6 @@
 #include "rectangle.h"
 
 #include "line.h"
-
 #include <cstdlib>
 #include <utility>
 
@@ -36,6 +35,8 @@ void Rectangle::draw() {
 
     const int width = abs(bottomRight.x - topLeft.x);
     const int height = abs(bottomRight.y - topLeft.y);
+
+    position = Point((std::min(p0.x,p1.x) + width) / 2, std::min(p0.y, p1.y) + height / 2);
 
     if (fill == true) {
         for (int i = 1; i < width; ++i) {
