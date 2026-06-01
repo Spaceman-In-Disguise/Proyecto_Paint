@@ -17,6 +17,17 @@ Canvas::Canvas(PixelCallback pixelWriter)
     : pixelWriter(std::move(pixelWriter)) {}
 
 
+std::vector<Shape*> Canvas::getShapes() const {
+    std::vector<Shape*> result;
+    result.reserve(shapes.size());
+
+    for (const auto& shape : shapes) {
+        result.push_back(shape.get());
+    }
+
+    return result;
+}
+
 Shape* Canvas::addShape(std::unique_ptr<Shape> newShape) {
     shapes.push_back(std::move(newShape));
     return shapes.back().get();
@@ -33,6 +44,26 @@ void Canvas::draw() {
     //Iterate through all and render using the draw method
     for (const auto& shape : shapes) {
         shape->draw();
+    }
+}
+
+void Canvas::highLightShape(Shape *shape) const {
+
+    const auto green = Color(0,1,0);
+    const int width = shape->boundingBox[0].x - shape->boundingBox[1].x;
+    const int height = shape->boundingBox[1].y - shape->boundingBox[0].y;
+
+    for (int i = shape->boundingBox[0].x; i < width+1; ++i) {
+        pixelWriter(i, shape->boundingBox[0].y, green);
+        pixelWriter(i, shape->boundingBox[0].y+1, green);
+        pixelWriter(i, shape->boundingBox[1].y, green);
+        pixelWriter(i, shape->boundingBox[1].y-1, green);
+    }
+    for (int i = shape->boundingBox[0].y; i < height+1; ++i) {
+        pixelWriter(shape->boundingBox[0].x, i, green);
+        pixelWriter(shape->boundingBox[0].x+1, i, green);
+        pixelWriter(shape->boundingBox[1].x, i, green);
+        pixelWriter(shape->boundingBox[1].x-1, i, green);
     }
 }
 

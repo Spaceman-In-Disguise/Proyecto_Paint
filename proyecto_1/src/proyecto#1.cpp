@@ -1,15 +1,24 @@
 ﻿#include "Engine2D.h"
 #include "line.h"
 #include "canvas.h"
+#include "quadTree.h"
 #include "triangle.h"
 #include "ellipse.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
     Canvas canvas;
+    quadTree tree;
     Color colorFondo = Color(0.1f, 0.1f, 0.15f);
     Color colorPincel = Color(1.0f, 0.0f, 0.0f);
-    bool dibujando = false;
+    bool showTree = true;
+    enum BrushStates {
+        DRAWING,
+        SELECTING,
+        IDLE
+    };
+    int state = IDLE;
+
     enum BrushTypes {
         LINE,
         RECTANGLE,
@@ -23,12 +32,14 @@ class proyecto1 : public Engine2D {
 
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
-        canvas([this](int x, int y, const Color& color) { putPixel(x, y, color); }) {}
+        canvas([this](int x, int y, const Color& color) { putPixel(x, y, color); }),
+        tree(Point(0, 0), Point(1023, 599), [this](int x, int y, const Color& color) { putPixel(x, y, color); }) {}
     void setup() override {
         clear(colorFondo);
         std::cout << "Motor inicializado exitosamente." << std::endl;
 
-    }
+        }
+
     // Eventos
     void onkeyDown(int key) override {
         if (key == GLFW_KEY_SPACE) {
@@ -39,8 +50,15 @@ public:
 
     void onMouseButtonDown(const int button, const double x, const double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
-            if (!dibujando) {
-            dibujando = true;
+            if (ImGui::GetIO().WantCaptureMouse) {
+                return;
+            }
+            if (state == SELECTING) {
+                (void)tree.getShapesByLeaf(Point(static_cast<int>(x), static_cast<int>(y)));
+                return;
+            }
+            if (state == IDLE) {
+                state = DRAWING;
                 switch (brush) {
                     case LINE:
                         currentResize = LINE;
@@ -62,19 +80,23 @@ public:
                 }
             }
         }
-        //putPixel(x, y, colorPincel);
     }
+
+
     void onMouseButtonUp(int button, double x, double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
-            dibujando = false;
-            currentResize = NONE;
+            if (state == DRAWING) {
+                state = IDLE;
+                currentResize = NONE;
+            }
         }
     }
     // Evento de movimiento continuo
     void onMouseMove(double x, double y) override {
-        // ReSharper disable once CppDFAConstantConditions
-        if (dibujando) {
-            // ReSharper disable once CppDFAUnreachableCode
+        if (ImGui::GetIO().WantCaptureMouse) {
+            return;
+        }
+        if (state == DRAWING) {
             int ix = static_cast<int>(x);
             int iy = static_cast<int>(y);
             switch (currentResize) {
@@ -109,6 +131,8 @@ public:
     void update(float deltaTime) override {
         clear(colorFondo);
         canvas.draw();
+        tree.rebuild(canvas.getShapes());
+        if (showTree){tree.draw();}
     }
     void drawUI() override {
         ImGui::Begin("Herramientas");
@@ -127,6 +151,9 @@ public:
         ImGui::RadioButton("Triangle", &brush, TRIANGLE);ImGui::SameLine();
         ImGui::RadioButton("Ellipse", &brush, ELLIPSE);
         ImGui::Checkbox("Filling", &filling);
+        ImGui::Checkbox("Show Tree", &showTree);
+        ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine(); //So it can wait to draw a shape
+        ImGui::RadioButton("Selection", &state, SELECTING);
         ImGui::End();
     }
 };

@@ -26,6 +26,10 @@ class Canvas {
     Shape* addShape(std::unique_ptr<Shape> newShape);
     [[nodiscard]] Shape* getLastShape() const;
 
+    Shape* selectShape();
+
+    void highLightShape(Shape* shape) const;
+
     Line* addLine(Point p0, Color colorPincel);
     static void resizeLine(Point p1, Shape* line);
 
@@ -38,6 +42,7 @@ class Canvas {
     Ellipse* addEllipse(Point p0, bool fill, Color colorPincel);
     static void resizeEllipse(Point p1, Shape* ellipse);
 
+    std::vector<Shape*> getShapes() const;
     void draw();
 private:
     std::vector<std::unique_ptr<Shape>> shapes;
