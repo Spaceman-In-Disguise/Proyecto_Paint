@@ -49,7 +49,8 @@ class Canvas {
     void moveDown(Shape* shape);
     void moveTop(Shape* shape);
     void moveBottom(Shape* shape);
-
+    void deleteShape(Shape* shape);
+    void clearAll();
 private:
     std::vector<std::unique_ptr<Shape>> shapes;
     PixelCallback pixelWriter;

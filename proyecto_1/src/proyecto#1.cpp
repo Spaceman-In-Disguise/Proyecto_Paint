@@ -194,7 +194,12 @@ public:
         ImGui::Checkbox("Show Tree", &showTree);
         ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine(); //So it can wait to draw a shape
         ImGui::RadioButton("Selection", &state, SELECTING);
+        if (ImGui::Button("Clear All")) {
+            canvas.clearAll();
+        }
         ImGui::End();
+
+        //Inspector for Selected Shape
         if (selectedShape != nullptr) {
             ImGui::Begin("Forma Seleccionada");
             ImGui::Separator();
@@ -216,7 +221,27 @@ public:
                     selectedShape->fillColor.g = fillCol[1];
                     selectedShape->fillColor.b = fillCol[2];
                 }
-                ImGui::Separator();
+            }
+            ImGui::Separator();
+            if(ImGui::Button("Move Up")) {
+                canvas.moveUp(selectedShape);
+            };
+            ImGui::SameLine();
+            if (ImGui::Button("Move Down")) {
+                canvas.moveDown(selectedShape);
+            }
+            if (ImGui::Button("Move Top")) {
+                canvas.moveTop(selectedShape);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Move Bottom")) {
+                canvas.moveBottom(selectedShape);
+            }
+            ImGui::Separator();
+            if(ImGui::Button("Delete Shape")) {
+                Shape* shapeToDelete = selectedShape;
+                selectedShape = nullptr;
+                canvas.deleteShape(shapeToDelete);
             }
             ImGui::End();
         }

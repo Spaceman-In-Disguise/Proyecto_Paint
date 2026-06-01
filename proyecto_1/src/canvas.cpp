@@ -220,3 +220,16 @@ void Canvas::moveBottom(Shape* shape) {
         std::rotate(shapes.begin(), it, it + 1);
     }
 }
+
+void Canvas::deleteShape(Shape* shape) {
+    if (!shape) return;
+    shapes.erase(
+        std::remove_if(shapes.begin(), shapes.end(),
+                       [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; }),
+        shapes.end()
+    );
+}
+
+void Canvas::clearAll() {
+    shapes.clear();
+}
