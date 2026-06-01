@@ -16,6 +16,7 @@ class proyecto1 : public Engine2D {
     enum BrushStates {
         DRAWING,
         SELECTING,
+        EDITING,
         IDLE
     };
     int state = IDLE;
@@ -228,7 +229,7 @@ public:
             ImGui::Separator();
                 ImGui::Text("Posicion: (%d, %d)", selectedShape->position.x, selectedShape->position.y);
                 ImGui::Text("Bounding Box: Top-Left(%d, %d) - Bottom-Right(%d, %d)", selectedShape->boundingBox[0].x, selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].x, selectedShape->boundingBox[1].y);
-                ImGui::Checkbox("Edit Mode", &selectedShape->debug);
+                
             ImGui::Separator();
             if(ImGui::Button("Move Up")) {
                 canvas.moveUp(selectedShape);

@@ -10,7 +10,6 @@ public:
     Color borderColor = Color();
     Color fillColor = Color();
     bool fill = true;
-    bool debug = false;
     virtual ~Shape() = default;
 
     virtual void draw() = 0;
