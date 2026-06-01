@@ -9,7 +9,7 @@
 class proyecto1 : public Engine2D {
     Canvas canvas;
     quadTree tree;
-    Color colorFondo = Color(0.1f, 0.1f, 0.15f);
+    Color backgroundColor = Color(0.1f, 0.1f, 0.15f);
     Color borderColor = Color(1.0f, 0.0f, 0.0f);
     Color fillColor = Color(1.0f, 0.0f, 0.0f);
     bool showTree = true;
@@ -39,7 +39,7 @@ public:
         canvas([this](int x, int y, const Color& color) { putPixel(x, y, color); }),
         tree(Point(0, 0), Point(1023, 599), [this](int x, int y, const Color& color) { putPixel(x, y, color); }) {}
     void setup() override {
-        clear(colorFondo);
+        clear(backgroundColor);
         std::cout << "Motor inicializado exitosamente." << std::endl;
 
         }
@@ -47,7 +47,7 @@ public:
     // Eventos
     void onkeyDown(int key) override {
         if (key == GLFW_KEY_SPACE) {
-            clear(colorFondo);
+            clear(backgroundColor);
             std::cout << brush << std::endl;
         }
     }
@@ -153,7 +153,7 @@ public:
 
     }
     void update(float deltaTime) override {
-        clear(colorFondo);
+        clear(backgroundColor);
         canvas.draw();
         if (selectedShape != nullptr) {
             canvas.highLightShape(selectedShape);
@@ -164,6 +164,12 @@ public:
     void drawUI() override {
         ImGui::Begin("Herramientas");
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+        float backgroundCol[3] = { backgroundColor.r, backgroundColor.g, backgroundColor.b };
+        if (ImGui::ColorEdit3("Background Color", backgroundCol)) {
+            backgroundColor.r = backgroundCol[0];
+            backgroundColor.g = backgroundCol[1];
+            backgroundColor.b = backgroundCol[2];
+        }
         ImGui::Separator();
         float borderCol[3] = { borderColor.r, borderColor.g, borderColor.b };
         if (ImGui::ColorEdit3("Border Color", borderCol)) {
@@ -189,6 +195,31 @@ public:
         ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine(); //So it can wait to draw a shape
         ImGui::RadioButton("Selection", &state, SELECTING);
         ImGui::End();
+        if (selectedShape != nullptr) {
+            ImGui::Begin("Forma Seleccionada");
+            ImGui::Separator();
+            //Tell the user the type of the shape
+            ImGui::Text("Tipo: %s", dynamic_cast<Line*>(selectedShape) ? "Linea" : dynamic_cast<Rectangle*>(selectedShape) ? "Rectangulo" : dynamic_cast<Triangle*>(selectedShape) ? "Triangulo" : dynamic_cast<Ellipse*>(selectedShape) ? "Elipse" : "Desconocida");
+            //Set the color of the border and fill in the UI
+            float borderCol[3] = { selectedShape->borderColor.r, selectedShape->borderColor.g, selectedShape->borderColor.b };
+            if (ImGui::ColorEdit3("Border Color", borderCol)) {
+                selectedShape->borderColor.r = borderCol[0];
+                selectedShape->borderColor.g = borderCol[1];
+                selectedShape->borderColor.b = borderCol[2];
+            }
+            //If it is not a line, allow the user to edit the fill color
+            if (!dynamic_cast<Line*>(selectedShape)) {
+                float fillCol[3] = { selectedShape->fillColor.r, selectedShape->fillColor.g, selectedShape->fillColor.b };
+                if (ImGui::ColorEdit3("Fill Color", fillCol)) {
+                    selectedShape->fill = true; //If the user is changing the fill color, we can assume they want it filled
+                    selectedShape->fillColor.r = fillCol[0];
+                    selectedShape->fillColor.g = fillCol[1];
+                    selectedShape->fillColor.b = fillCol[2];
+                }
+                ImGui::Separator();
+            }
+            ImGui::End();
+        }
     }
 };
 

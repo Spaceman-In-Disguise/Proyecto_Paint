@@ -167,3 +167,56 @@ void Canvas::resizeEllipse(const Point p1, Shape* ellipse) {
         latestEllipse->setP1(p1);
     }
 }
+
+void Canvas::moveUp(Shape* shape) {
+    if (!shape) return;
+
+    // Find the shape in the vector
+    auto it = std::find_if(shapes.begin(), shapes.end(),
+                           [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; });
+
+    // If found and not already at the very end (top)
+    if (it != shapes.end() && it != shapes.end() - 1) {
+        // Swap with the next element
+        std::iter_swap(it, it + 1);
+    }
+}
+
+void Canvas::moveDown(Shape* shape) {
+    if (!shape) return;
+
+    auto it = std::find_if(shapes.begin(), shapes.end(),
+                           [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; });
+
+    // If found and not already at the very beginning (bottom)
+    if (it != shapes.end() && it != shapes.begin()) {
+        // Swap with the previous element
+        std::iter_swap(it, it - 1);
+    }
+}
+
+void Canvas::moveTop(Shape* shape) {
+    if (!shape) return;
+
+    auto it = std::find_if(shapes.begin(), shapes.end(),
+                           [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; });
+
+    if (it != shapes.end() && it != shapes.end() - 1) {
+        // std::rotate shifts elements left
+        // By rotating from 'it' to 'shapes.end()', 'it' gets pushed to the back
+        std::rotate(it, it + 1, shapes.end());
+    }
+}
+
+void Canvas::moveBottom(Shape* shape) {
+    if (!shape) return;
+
+    auto it = std::find_if(shapes.begin(), shapes.end(),
+                           [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; });
+
+    if (it != shapes.end() && it != shapes.begin()) {
+        // Here, we rotate the segment from the beginning up to the element AFTER 'it'.
+        // This effectively pushes 'it' to the front and shifts everything else right.
+        std::rotate(shapes.begin(), it, it + 1);
+    }
+}

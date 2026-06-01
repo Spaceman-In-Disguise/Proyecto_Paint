@@ -44,6 +44,12 @@ class Canvas {
 
     std::vector<Shape*> getShapes() const;
     void draw();
+
+    void moveUp(Shape* shape);
+    void moveDown(Shape* shape);
+    void moveTop(Shape* shape);
+    void moveBottom(Shape* shape);
+
 private:
     std::vector<std::unique_ptr<Shape>> shapes;
     PixelCallback pixelWriter;
