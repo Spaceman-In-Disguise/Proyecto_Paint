@@ -22,8 +22,10 @@ void plotSymmetricPoints(const Ellipse::PixelCallback& pixelWriter, const Point&
 Ellipse::Ellipse(Point p0, Point p1, const Color& color, PixelCallback pixelWriter)
     : p0(p0)
     , p1(p1)
-    , color(color)
-    , pixelWriter(std::move(pixelWriter)) {}
+    , pixelWriter(std::move(pixelWriter)) {
+    borderColor = color;
+    fillColor = color;
+}
 
 void Ellipse::draw() {
     if (!pixelWriter) {
@@ -48,20 +50,20 @@ void Ellipse::draw() {
     const int ry = (bottom - top) / 2;
 
     if (rx == 0 && ry == 0) {
-        pixelWriter(center.x, center.y, color);
+        pixelWriter(center.x, center.y, borderColor);
         return;
     }
 
     if (rx == 0) {
         for (int y = center.y - ry; y <= center.y + ry; ++y) {
-            pixelWriter(center.x, y, color);
+            pixelWriter(center.x, y, borderColor);
         }
         return;
     }
 
     if (ry == 0) {
         for (int x = center.x - rx; x <= center.x + rx; ++x) {
-            pixelWriter(x, center.y, color);
+            pixelWriter(x, center.y, borderColor);
         }
         return;
     }
@@ -81,15 +83,15 @@ void Ellipse::draw() {
 
     auto drawHorizontalSpans = [&](const int currentX, const int currentY) {
         for (int dx = -currentX; dx <= currentX; ++dx) {
-            pixelWriter(center.x + dx, center.y + currentY, color); // Lower half
+            pixelWriter(center.x + dx, center.y + currentY, fillColor); // Lower half
             if (currentY != 0) {
-                pixelWriter(center.x + dx, center.y - currentY, color); // Upper half
+                pixelWriter(center.x + dx, center.y - currentY, fillColor); // Upper half
             }
         }
     };
 
     while (px < py) {
-        plotSymmetricPoints(pixelWriter, center, static_cast<int>(x), static_cast<int>(y), color);
+        plotSymmetricPoints(pixelWriter, center, static_cast<int>(x), static_cast<int>(y), borderColor);
         x++;
         px += twoRy2;
 
@@ -108,7 +110,7 @@ void Ellipse::draw() {
 
     while (y >= 0) {
         if (fill){drawHorizontalSpans(static_cast<int>(x), static_cast<int>(y));}
-        plotSymmetricPoints(pixelWriter, center, static_cast<int>(x), static_cast<int>(y), color);
+        plotSymmetricPoints(pixelWriter, center, static_cast<int>(x), static_cast<int>(y), borderColor);
         y--;
         py -= twoRx2;
 

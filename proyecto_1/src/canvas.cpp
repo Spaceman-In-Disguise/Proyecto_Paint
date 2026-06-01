@@ -10,6 +10,7 @@
 #include "rectangle.h"
 #include "triangle.h"
 
+#include <algorithm>
 #include <cmath>
 #include <utility>
 
@@ -48,32 +49,43 @@ void Canvas::draw() {
 }
 
 void Canvas::highLightShape(Shape *shape) const {
-
-    const auto green = Color(0,1,0);
-    const int width = shape->boundingBox[0].x - shape->boundingBox[1].x;
-    const int height = shape->boundingBox[1].y - shape->boundingBox[0].y;
-
-    for (int i = shape->boundingBox[0].x; i < width+1; ++i) {
-        pixelWriter(i, shape->boundingBox[0].y, green);
-        pixelWriter(i, shape->boundingBox[0].y+1, green);
-        pixelWriter(i, shape->boundingBox[1].y, green);
-        pixelWriter(i, shape->boundingBox[1].y-1, green);
+    if (shape == nullptr) {
+        return;
     }
-    for (int i = shape->boundingBox[0].y; i < height+1; ++i) {
-        pixelWriter(shape->boundingBox[0].x, i, green);
-        pixelWriter(shape->boundingBox[0].x+1, i, green);
-        pixelWriter(shape->boundingBox[1].x, i, green);
-        pixelWriter(shape->boundingBox[1].x-1, i, green);
+
+    const auto green = Color(0, 1, 0);
+    const auto black = Color(0, 0, 0);
+    Color colorOptions[2] = {green, black};
+    const int minX = std::min(shape->boundingBox[0].x, shape->boundingBox[1].x);
+    const int maxX = std::max(shape->boundingBox[0].x, shape->boundingBox[1].x);
+    const int minY = std::min(shape->boundingBox[0].y, shape->boundingBox[1].y);
+    const int maxY = std::max(shape->boundingBox[0].y, shape->boundingBox[1].y);
+
+    for (int x = minX; x <= maxX; ++x) {
+
+        pixelWriter(x, minY, colorOptions[x%2]);
+        pixelWriter(x, minY + 1, colorOptions[x%2]);
+        pixelWriter(x, maxY, colorOptions[x%2]);
+        pixelWriter(x, maxY - 1, colorOptions[x%2]);
+    }
+
+    for (int y = minY; y <= maxY; ++y) {
+        pixelWriter(minX, y, colorOptions[y%2]);
+        pixelWriter(minX + 1, y, colorOptions[y%2]);
+        pixelWriter(maxX, y, colorOptions[y%2]);
+        pixelWriter(maxX - 1, y, colorOptions[y%2]);
     }
 }
 
-Line* Canvas::addLine(const Point p0, Color colorPincel) {
+Line* Canvas::addLine(const Point p0, Color color) {
         Shape* newShape = addShape(std::make_unique<Line>(
             p0,
             p0,
-            colorPincel,
+            color,
             pixelWriter
         ));
+       newShape->borderColor = color;
+       newShape->fillColor = color;
        return dynamic_cast<Line*>(newShape);
 }
 
@@ -83,13 +95,15 @@ void Canvas::resizeLine(const Point p1, Shape* line) {
     }
 }
 
-Rectangle* Canvas::addRectangle(const Point p0, const bool fill, Color colorPincel) {
+Rectangle* Canvas::addRectangle(const Point p0, const bool fill, Color borderColor, Color fillColor) {
     Shape* newShape = addShape(std::make_unique<Rectangle>(
         p0,
         p0,
-        colorPincel,
+        borderColor,
         pixelWriter
         ));
+    newShape->borderColor = borderColor;
+    newShape->fillColor = fillColor;
     newShape -> fill = fill;
     return dynamic_cast<Rectangle*>(newShape);
 }
@@ -100,14 +114,16 @@ void Canvas::resizeRectangle(const Point p1, Shape* rectangle) {
     }
 }
 
-Triangle* Canvas::addTriangle(const Point p0, const bool fill, Color colorPincel) {
+Triangle* Canvas::addTriangle(const Point p0, const bool fill, Color borderColor, Color fillColor) {
     Shape* newShape = addShape(std::make_unique<Triangle>(
         p0,
         p0,
         p0,
-        colorPincel,
+        borderColor,
         pixelWriter
     ));
+    newShape->borderColor = borderColor;
+    newShape->fillColor = fillColor;
     newShape -> fill = fill;
     return dynamic_cast<Triangle*>(newShape);
 }
@@ -133,13 +149,15 @@ void Canvas::resizeTriangle(const Point p1, Shape* triangle) {
     }
 }
 
-Ellipse* Canvas::addEllipse(const Point p0, const bool fill, Color colorPincel) {
+Ellipse* Canvas::addEllipse(const Point p0, const bool fill, Color borderColor, Color fillColor) {
     Shape* newShape = addShape(std::make_unique<Ellipse>(
         p0,
         p0,
-        colorPincel,
+        borderColor,
         pixelWriter
     ));
+    newShape->borderColor = borderColor;
+    newShape->fillColor = fillColor;
     newShape->fill = fill;
     return dynamic_cast<Ellipse*>(newShape);
 }

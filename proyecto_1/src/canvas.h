@@ -30,16 +30,16 @@ class Canvas {
 
     void highLightShape(Shape* shape) const;
 
-    Line* addLine(Point p0, Color colorPincel);
+    Line* addLine(Point p0, Color color);
     static void resizeLine(Point p1, Shape* line);
 
-    Rectangle* addRectangle(Point p0, bool fill, Color colorPincel);
+    Rectangle* addRectangle(Point p0, bool fill, Color borderColor, Color fillColor);
     static void resizeRectangle(Point p1, Shape* rectangle);
 
-    Triangle* addTriangle(Point p0, bool fill, Color colorPincel);
+    Triangle* addTriangle(Point p0, bool fill, Color borderColor, Color fillColor);
     static void resizeTriangle(Point p1, Shape* triangle);
 
-    Ellipse* addEllipse(Point p0, bool fill, Color colorPincel);
+    Ellipse* addEllipse(Point p0, bool fill, Color borderColor, Color fillColor);
     static void resizeEllipse(Point p1, Shape* ellipse);
 
     std::vector<Shape*> getShapes() const;

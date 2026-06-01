@@ -11,9 +11,11 @@
 Rectangle::Rectangle(Point p0, Point p1, const Color& color, PixelCallback pixelWriter)
     : p0(p0)
     , p1(p1)
-    , color(color)
     , canvas(pixelWriter)
-    , pixelWriter(std::move(pixelWriter)) {}
+    , pixelWriter(std::move(pixelWriter)) {
+    borderColor = color;
+    fillColor = color;
+}
 
 void Rectangle::draw() {
     canvas = Canvas(pixelWriter);
@@ -26,13 +28,13 @@ void Rectangle::draw() {
     const Point bottomRight = p1;
     const Point bottomLeft(p0.x, p1.y);
 
-    Line* topEdge = canvas.addLine(topLeft, color);
-    Line* leftEdge = canvas.addLine(bottomLeft, color);
+    Line* topEdge = canvas.addLine(topLeft, borderColor);
+    Line* leftEdge = canvas.addLine(bottomLeft, borderColor);
     canvas.resizeLine(topRight, topEdge);
     canvas.resizeLine(bottomRight, leftEdge);
 
-    Line* bottomEdge = canvas.addLine(topLeft, color);
-    Line* rightEdge = canvas.addLine(topRight, color);
+    Line* bottomEdge = canvas.addLine(topLeft, borderColor);
+    Line* rightEdge = canvas.addLine(topRight, borderColor);
     canvas.resizeLine(bottomLeft, bottomEdge);
     canvas.resizeLine(bottomRight, rightEdge);
 
@@ -44,7 +46,7 @@ void Rectangle::draw() {
     if (fill == true) {
         for (int i = 1; i < width; ++i) {
             for (int j = 1; j < height; ++j) {
-                pixelWriter(fmin(p0.x,p1.x) + i, fmin(p0.y,p1.y) + j, color);
+                pixelWriter(fmin(p0.x,p1.x) + i, fmin(p0.y,p1.y) + j, fillColor);
             }
         }
     }

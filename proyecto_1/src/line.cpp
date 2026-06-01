@@ -3,7 +3,10 @@
 #include <cstdlib>
 
 Line::Line(Point p0, Point p1, const Color& color, PixelCallback pixelWriter)
-    : p0(p0), p1(p1), color(color), pixelWriter(std::move(pixelWriter)) {}
+    : p0(p0), p1(p1), pixelWriter(std::move(pixelWriter)) {
+    borderColor = color;
+    fillColor = color;
+}
 
 void Line::draw() {
     if (!pixelWriter) {
@@ -24,7 +27,7 @@ void Line::draw() {
     int y = p0.y;
 
     while (true) {
-        pixelWriter(x, y, color);
+        pixelWriter(x, y, borderColor);
 
         if (x == p1.x && y == p1.y) {
             break;

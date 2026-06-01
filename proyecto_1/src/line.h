@@ -17,7 +17,6 @@ public:
 private:
 	Point p0;
 	Point p1;
-	Color color;
 	PixelCallback pixelWriter;
 };
 

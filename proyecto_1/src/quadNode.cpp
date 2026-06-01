@@ -109,7 +109,7 @@ void quadNode::insert(Shape* shape) {
 }
 
 const quadNode* quadNode::findLeaf(const Point& point) const {
-    if (!containsPoint(point)) {
+    if (!containsPoint(boundingBox, point)) {
         return nullptr;
     }
 
@@ -176,9 +176,9 @@ bool quadNode::fullyContains(Point shapeBox[2]) const {
            shapeBox[1].y <= boundingBox[1].y;
 }
 
-bool quadNode::containsPoint(const Point& point) const {
-    return point.x >= boundingBox[0].x && point.x <= boundingBox[1].x &&
-           point.y >= boundingBox[0].y && point.y <= boundingBox[1].y;
+bool quadNode::containsPoint(const Point box[2], const Point& point) {
+    return point.x >= box[0].x && point.x <= box[1].x &&
+           point.y >= box[0].y && point.y <= box[1].y;
 }
 
 quadNode::~quadNode() {

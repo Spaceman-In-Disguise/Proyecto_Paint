@@ -56,5 +56,19 @@ std::vector<Shape*> quadTree::getShapesByLeaf(Point point) const {
 		return {};
 	}
 
-	return leaf->getShapes();
+	const std::vector<Shape*> leafShapes = leaf->getShapes();
+	std::vector<Shape*> filteredShapes;
+	filteredShapes.reserve(leafShapes.size());
+
+	for (Shape* shape : leafShapes) {
+		if (shape == nullptr) {
+			continue;
+		}
+
+		if (quadNode::containsPoint(shape->boundingBox, point)) {
+			filteredShapes.push_back(shape);
+		}
+	}
+
+	return filteredShapes;
 }

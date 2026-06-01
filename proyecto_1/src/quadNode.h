@@ -25,10 +25,10 @@ public:
     std::vector<Shape*> getShapes() const;
     std::size_t getShapeCount() const;
     bool isInside(Point shapeBox[2]) const;
+    static bool containsPoint(const Point box[2], const Point& point);
 
 private:
     bool fullyContains(Point shapeBox[2]) const;
-    bool containsPoint(const Point& point) const;
     void drawBorder(const PixelCallback& pixelWriter) const;
 
     Point boundingBox[2];

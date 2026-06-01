@@ -52,9 +52,11 @@ Triangle::Triangle(Point p0, Point p1, Point p2, const Color& color, PixelCallba
     : p0(p0)
     , p1(p1)
     , p2(p2)
-    , color(color)
     , canvas(pixelWriter)
-    , pixelWriter(std::move(pixelWriter)) {}
+    , pixelWriter(std::move(pixelWriter)) {
+    borderColor = color;
+    fillColor = color;
+}
 
 void Triangle::draw() {
     if (!pixelWriter) {
@@ -77,15 +79,14 @@ void Triangle::draw() {
 
     canvas = Canvas(pixelWriter);
 
-    Line* edgeA = canvas.addLine(p0, color);
-    Line* edgeB = canvas.addLine(p1, color);
-    Line* edgeC = canvas.addLine(p2, color);
+    Line* edgeA = canvas.addLine(p0, borderColor);
+    Line* edgeB = canvas.addLine(p1, borderColor);
+    Line* edgeC = canvas.addLine(p2, borderColor);
 
     canvas.resizeLine(p1, edgeA);
     canvas.resizeLine(p2, edgeB);
     canvas.resizeLine(p0, edgeC);
 
-    canvas.draw();
 
     if (fill) {
         // Calculate the edges using the sorted LOCAL copies (t0, t1, t2)
@@ -96,25 +97,26 @@ void Triangle::draw() {
         // TOP of the triangle is FLAT
         if (t1.y == t0.y) {
             for (std::size_t i = 0; i < x02.size() && i < x12.size(); ++i) {
-                fillSpan(t0.y + static_cast<int>(i), x02[i], x12[i], color, pixelWriter);
+                fillSpan(t0.y + static_cast<int>(i), x02[i], x12[i], fillColor, pixelWriter);
             }
         // BOTTOM of the triangle is FLAT
         } else if (t1.y == t2.y) {
             for (std::size_t i = 0; i < x01.size() && i < x02.size(); ++i) {
-                fillSpan(t0.y + static_cast<int>(i), x01[i], x02[i], color, pixelWriter);
+                fillSpan(t0.y + static_cast<int>(i), x01[i], x02[i], fillColor, pixelWriter);
             }
         // Else the triangle is split in two
         } else {
             for (std::size_t i = 0; i < x01.size() && i < x02.size(); ++i) {
-                fillSpan(t0.y + static_cast<int>(i), x01[i], x02[i], color, pixelWriter);
+                fillSpan(t0.y + static_cast<int>(i), x01[i], x02[i], fillColor, pixelWriter);
             }
 
             const int lowerOffset = t1.y - t0.y;
             for (std::size_t i = 0; i < x12.size() && i + lowerOffset < x02.size(); ++i) {
-                fillSpan(t1.y + static_cast<int>(i), x12[i], x02[i + lowerOffset], color, pixelWriter);
+                fillSpan(t1.y + static_cast<int>(i), x12[i], x02[i + lowerOffset], fillColor, pixelWriter);
             }
         }
     }
+    canvas.draw();
 }
 
 void Triangle::setP1(Point new_p1) {

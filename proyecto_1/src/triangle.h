@@ -21,7 +21,6 @@ private:
     Point p0;
     Point p1;
     Point p2;
-    Color color;
     Canvas canvas;
     PixelCallback pixelWriter;
 };

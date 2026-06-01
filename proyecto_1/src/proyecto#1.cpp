@@ -10,7 +10,8 @@ class proyecto1 : public Engine2D {
     Canvas canvas;
     quadTree tree;
     Color colorFondo = Color(0.1f, 0.1f, 0.15f);
-    Color colorPincel = Color(1.0f, 0.0f, 0.0f);
+    Color borderColor = Color(1.0f, 0.0f, 0.0f);
+    Color fillColor = Color(1.0f, 0.0f, 0.0f);
     bool showTree = true;
     enum BrushStates {
         DRAWING,
@@ -29,6 +30,9 @@ class proyecto1 : public Engine2D {
     int brush = LINE;
     int currentResize = LINE;
     bool filling = false;
+    Shape* selectedShape = nullptr;
+    std::vector<Shape*> lastShapeHits;
+    size_t selectionCycleIndex = 0;
 
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
@@ -54,27 +58,47 @@ public:
                 return;
             }
             if (state == SELECTING) {
-                (void)tree.getShapesByLeaf(Point(static_cast<int>(x), static_cast<int>(y)));
+                const std::vector<Shape*> shapeHits = tree.getShapesByLeaf(Point(static_cast<int>(x), static_cast<int>(y)));
+                if (shapeHits.empty()) {
+                    selectedShape = nullptr;
+                    lastShapeHits.clear();
+                    selectionCycleIndex = 0;
+                    return;
+                }
+
+                if (shapeHits == lastShapeHits) {
+                    selectionCycleIndex = (selectionCycleIndex + 1) % shapeHits.size();
+                } else {
+                    lastShapeHits = shapeHits;
+                    selectionCycleIndex = 0;
+                }
+
+                // Cycle from topmost to bottom-most shape in the same hit pool
+                const size_t selectedIndex = lastShapeHits.size() - 1 - selectionCycleIndex;
+                selectedShape = lastShapeHits[selectedIndex];
                 return;
             }
             if (state == IDLE) {
+                selectedShape = nullptr;
+                lastShapeHits.clear();
+                selectionCycleIndex = 0;
                 state = DRAWING;
                 switch (brush) {
                     case LINE:
                         currentResize = LINE;
-                        canvas.addLine(Point(static_cast<int>(x), static_cast<int>(y)), colorPincel);
+                        canvas.addLine(Point(static_cast<int>(x), static_cast<int>(y)), borderColor);
                         break;
                     case RECTANGLE:
                         currentResize = RECTANGLE;
-                        canvas.addRectangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
+                        canvas.addRectangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
                     case TRIANGLE:
                         currentResize = TRIANGLE;
-                        canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
+                        canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
                     case ELLIPSE:
                         currentResize = ELLIPSE;
-                        canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), filling, colorPincel);
+                        canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
 
                 }
@@ -131,6 +155,9 @@ public:
     void update(float deltaTime) override {
         clear(colorFondo);
         canvas.draw();
+        if (selectedShape != nullptr) {
+            canvas.highLightShape(selectedShape);
+        }
         tree.rebuild(canvas.getShapes());
         if (showTree){tree.draw();}
     }
@@ -138,11 +165,18 @@ public:
         ImGui::Begin("Herramientas");
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::Separator();
-        float col[3] = { colorPincel.r, colorPincel.g, colorPincel.b };
-        if (ImGui::ColorEdit3("Color Pincel", col)) {
-            colorPincel.r = col[0];
-            colorPincel.g = col[1];
-            colorPincel.b = col[2];
+        float borderCol[3] = { borderColor.r, borderColor.g, borderColor.b };
+        if (ImGui::ColorEdit3("Border Color", borderCol)) {
+            borderColor.r = borderCol[0];
+            borderColor.g = borderCol[1];
+            borderColor.b = borderCol[2];
+        }
+
+        float fillCol[3] = { fillColor.r, fillColor.g, fillColor.b };
+        if (ImGui::ColorEdit3("Fill Color", fillCol)) {
+            fillColor.r = fillCol[0];
+            fillColor.g = fillCol[1];
+            fillColor.b = fillCol[2];
         }
         ImGui::Text("Manten click izquierdo para dibujar.");
         ImGui::Text("Presiona ESPACIO para limpiar.");
