@@ -43,13 +43,7 @@ void Line::draw() {
             y += sy;
         }
     }
-    if (debug == true) { // Draw Control Middle Point
-        for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                pixelWriter(position.x + i, position.y + j, Color(0,1,0));
-            }
-        }
-    }
+
 }
 
 void Line::setP1(Point new_p1) {

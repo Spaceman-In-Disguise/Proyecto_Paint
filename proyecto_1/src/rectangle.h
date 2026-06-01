@@ -14,6 +14,12 @@ public:
     Rectangle(Point p0, Point p1, const Color& color, PixelCallback pixelWriter);
 
     void draw() override;
+    void move(int deltaX, int deltaY) override {
+        p0.x += deltaX;
+        p0.y += deltaY;
+        p1.x += deltaX;
+        p1.y += deltaY;
+    }
     void setP1(Point new_p1);
 private:
     Point p0;

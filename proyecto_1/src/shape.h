@@ -14,4 +14,5 @@ public:
     virtual ~Shape() = default;
 
     virtual void draw() = 0;
+    virtual void move(int deltaX, int deltaY) = 0;
 };

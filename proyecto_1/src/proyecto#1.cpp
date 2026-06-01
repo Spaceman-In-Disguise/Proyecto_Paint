@@ -33,6 +33,7 @@ class proyecto1 : public Engine2D {
     Shape* selectedShape = nullptr;
     std::vector<Shape*> lastShapeHits;
     size_t selectionCycleIndex = 0;
+    int deltaMouse[2] = {0, 0};
 
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
@@ -117,6 +118,8 @@ public:
     }
     // Evento de movimiento continuo
     void onMouseMove(double x, double y) override {
+        deltaMouse[0] = static_cast<int>(x) - deltaMouse[0];
+        deltaMouse[1] = static_cast<int>(y) - deltaMouse[1];
         if (ImGui::GetIO().WantCaptureMouse) {
             return;
         }
@@ -222,6 +225,10 @@ public:
                     selectedShape->fillColor.b = fillCol[2];
                 }
             }
+            ImGui::Separator();
+                ImGui::Text("Posicion: (%d, %d)", selectedShape->position.x, selectedShape->position.y);
+                ImGui::Text("Bounding Box: Top-Left(%d, %d) - Bottom-Right(%d, %d)", selectedShape->boundingBox[0].x, selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].x, selectedShape->boundingBox[1].y);
+                ImGui::Checkbox("Edit Mode", &selectedShape->debug);
             ImGui::Separator();
             if(ImGui::Button("Move Up")) {
                 canvas.moveUp(selectedShape);
