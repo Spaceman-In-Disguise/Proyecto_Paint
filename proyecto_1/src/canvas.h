@@ -48,6 +48,9 @@ class Canvas {
     static void resizeEllipse(Point p1, Shape* ellipse);
 
     std::vector<Shape*> getShapes() const;
+
+    void setShapes(std::vector<std::unique_ptr<Shape>> newShapes);
+
     void draw();
 
     void moveUp(Shape* shape);

@@ -29,6 +29,11 @@ std::vector<Shape*> Canvas::getShapes() const {
     return result;
 }
 
+void Canvas::setShapes(std::vector<std::unique_ptr<Shape>> newShapes) {
+    shapes.clear();
+    shapes = std::move(newShapes);
+};
+
 Shape* Canvas::addShape(std::unique_ptr<Shape> newShape) {
     shapes.push_back(std::move(newShape));
     return shapes.back().get();
@@ -39,6 +44,19 @@ Shape* Canvas::getLastShape() const {
         return nullptr;
     }
     return shapes.back().get();
+}
+
+void Canvas::deleteShape(Shape* shape) {
+    if (!shape) return;
+    shapes.erase(
+        std::remove_if(shapes.begin(), shapes.end(),
+                       [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; }),
+        shapes.end()
+    );
+}
+
+void Canvas::clearAll() {
+    shapes.clear();
 }
 
 void Canvas::draw() {
@@ -255,17 +273,4 @@ void Canvas::moveBottom(Shape* shape) {
         // This effectively pushes 'it' to the front and shifts everything else right.
         std::rotate(shapes.begin(), it, it + 1);
     }
-}
-
-void Canvas::deleteShape(Shape* shape) {
-    if (!shape) return;
-    shapes.erase(
-        std::remove_if(shapes.begin(), shapes.end(),
-                       [shape](const std::unique_ptr<Shape>& p) { return p.get() == shape; }),
-        shapes.end()
-    );
-}
-
-void Canvas::clearAll() {
-    shapes.clear();
 }

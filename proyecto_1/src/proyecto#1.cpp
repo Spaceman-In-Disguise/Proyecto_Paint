@@ -43,6 +43,9 @@ class proyecto1 : public Engine2D {
     int dragLastX = 0;
     int dragLastY = 0;
 
+    double lastClickTime = 0.0;
+    const double doubleClickThreshold = 0.3; // 0.3 seconds (300ms)
+
     //UNDO - REDO Logic
     HistoryManager history;
 
@@ -67,6 +70,7 @@ class proyecto1 : public Engine2D {
 
         selectedShape = nullptr;
         state = IDLE;
+        isEditing = false;
     }
 
     void saveState() {
@@ -173,10 +177,37 @@ public:
             if (ImGui::GetIO().WantCaptureMouse) {
                 return;
             }
+
+            double currentTime = glfwGetTime();
+            bool isDoubleClick = (currentTime - lastClickTime) < doubleClickThreshold;
+            lastClickTime = currentTime; // Reset the tracker
+
             const Point cursor(static_cast<int>(x), static_cast<int>(y));
+
+            if (isDoubleClick) { //Edit Selected Shape
+                if (state == SELECTING && selectedShape != nullptr && cursor.x > std::min(selectedShape->boundingBox[0].x, selectedShape->boundingBox[1].x) &&
+                                     cursor.x < std::max(selectedShape->boundingBox[0].x, selectedShape->boundingBox[1].x) &&
+                                     cursor.y > std::min(selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].y) &&
+                                     cursor.y < std::max(selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].y)) {
+                    isEditing = !isEditing;
+                    state = isEditing ? EDITING : SELECTING;
+                    return;
+                }
+            }
             if (state == EDITING && selectedShape != nullptr) {
+                //Checks if cursor is outside the bounding box of the selected shape, if it is, we deselect the shape and reset the selection state
+                if (cursor.x < std::min(selectedShape->boundingBox[0].x, selectedShape->boundingBox[1].x) - 10 ||
+                                     cursor.x > std::max(selectedShape->boundingBox[0].x, selectedShape->boundingBox[1].x) + 10 ||
+                                     cursor.y < std::min(selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].y) - 10 ||
+                                     cursor.y > std::max(selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].y) + 10) {
+                    selectedShape = nullptr;
+                    state = SELECTING;
+                    isEditing = false;
+                    return;
+                }
                 activeControlPointIndex = getNearbyControlPointIndex(selectedShape, cursor);
                 if (activeControlPointIndex >= 0) { // Moving handle to reshape
+                    saveState();
                     isDragging = true;
                     isDraggingHandle = true;
                     dragLastX = cursor.x;
@@ -185,6 +216,7 @@ public:
                 }
 
                 if (isNearHandle(cursor, selectedShape->position)) { //Moving whole shape
+                    saveState();
                     isDragging = true;
                     isDraggingHandle = false;
                     dragLastX = cursor.x;
@@ -221,18 +253,22 @@ public:
                 switch (brush) {
                     case LINE:
                         currentResize = LINE;
+                        saveState();
                         canvas.addLine(Point(static_cast<int>(x), static_cast<int>(y)), borderColor);
                         break;
                     case RECTANGLE:
                         currentResize = RECTANGLE;
+                        saveState();
                         canvas.addRectangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
                     case TRIANGLE:
                         currentResize = TRIANGLE;
+                        saveState();
                         canvas.addTriangle(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
                     case ELLIPSE:
                         currentResize = ELLIPSE;
+                        saveState();
                         canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
 
@@ -322,14 +358,28 @@ public:
     void drawUI() override {
         ImGui::Begin("Herramientas");
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+        static bool isEditingBg = false;
+
+        if (!ImGui::GetIO().MouseDown[0]) {
+            isEditingBg = false;
+        }
+
         float backgroundCol[3] = { backgroundColor.r, backgroundColor.g, backgroundColor.b };
+
         if (ImGui::ColorEdit3("Background Color", backgroundCol)) {
+            if (!isEditingBg) {
+                saveState();
+                isEditingBg = true;
+            }
             backgroundColor.r = backgroundCol[0];
             backgroundColor.g = backgroundCol[1];
             backgroundColor.b = backgroundCol[2];
         }
+
         ImGui::Separator();
         float borderCol[3] = { borderColor.r, borderColor.g, borderColor.b };
+
         if (ImGui::ColorEdit3("Border Color", borderCol)) {
             borderColor.r = borderCol[0];
             borderColor.g = borderCol[1];
@@ -364,16 +414,40 @@ public:
             //Tell the user the type of the shape
             ImGui::Text("Tipo: %s", dynamic_cast<Line*>(selectedShape) ? "Linea" : dynamic_cast<Rectangle*>(selectedShape) ? "Rectangulo" : dynamic_cast<Triangle*>(selectedShape) ? "Triangulo" : dynamic_cast<Ellipse*>(selectedShape) ? "Elipse" : "Desconocida");
             //Set the color of the border and fill in the UI
+
+            static bool isEditingBorder = false;
+            if (!ImGui::GetIO().MouseDown[0]) {
+                isEditingBorder = false;
+            }
+
             float borderCol[3] = { selectedShape->borderColor.r, selectedShape->borderColor.g, selectedShape->borderColor.b };
+
             if (ImGui::ColorEdit3("Border Color", borderCol)) {
+                if (!isEditingBorder) {
+                    saveState();
+                    isEditingBorder = true;
+                }
                 selectedShape->borderColor.r = borderCol[0];
                 selectedShape->borderColor.g = borderCol[1];
                 selectedShape->borderColor.b = borderCol[2];
             }
+
+
             //If it is not a line, allow the user to edit the fill color
             if (!dynamic_cast<Line*>(selectedShape)) {
+
+                static bool isEditingFill = false;
+                if (!ImGui::GetIO().MouseDown[0]) {
+                    isEditingFill = false;
+                }
+
                 float fillCol[3] = { selectedShape->fillColor.r, selectedShape->fillColor.g, selectedShape->fillColor.b };
+
                 if (ImGui::ColorEdit3("Fill Color", fillCol)) {
+                    if (!isEditingFill) {
+                        saveState();
+                        isEditingFill = true;
+                    }
                     selectedShape->fill = true; //If the user is changing the fill color, we can assume they want it filled
                     selectedShape->fillColor.r = fillCol[0];
                     selectedShape->fillColor.g = fillCol[1];
@@ -388,21 +462,26 @@ public:
                 }
             ImGui::Separator();
             if(ImGui::Button("Move Up")) {
+                saveState();
                 canvas.moveUp(selectedShape);
             };
             ImGui::SameLine();
             if (ImGui::Button("Move Down")) {
+                saveState();
                 canvas.moveDown(selectedShape);
             }
             if (ImGui::Button("Move Top")) {
+                saveState();
                 canvas.moveTop(selectedShape);
             }
             ImGui::SameLine();
             if (ImGui::Button("Move Bottom")) {
+                saveState();
                 canvas.moveBottom(selectedShape);
             }
             ImGui::Separator();
             if(ImGui::Button("Delete Shape")) {
+                saveState();
                 Shape* shapeToDelete = selectedShape;
                 selectedShape = nullptr;
                 canvas.deleteShape(shapeToDelete);
