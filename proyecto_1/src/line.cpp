@@ -49,3 +49,7 @@ void Line::draw() {
 void Line::setP1(Point new_p1) {
     this->p1 = new_p1;
 }
+
+void Line::setP0(Point new_p0) {
+    this->p0 = new_p0;
+}

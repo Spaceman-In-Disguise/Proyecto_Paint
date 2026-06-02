@@ -14,17 +14,21 @@ public:
     Triangle(Point p0, Point p1, Point p2, const Color& color, PixelCallback pixelWriter);
 
     void draw() override;
-        void move(int deltaX, int deltaY) override {
-            p0.x += deltaX;
-            p0.y += deltaY;
-            p1.x += deltaX;
-            p1.y += deltaY;
-            p2.x += deltaX;
-            p2.y += deltaY;
-        }
+    void move(int deltaX, int deltaY) override {
+        p0.x += deltaX;
+        p0.y += deltaY;
+        p1.x += deltaX;
+        p1.y += deltaY;
+        p2.x += deltaX;
+        p2.y += deltaY;
+    }
+    void setP0(Point new_p0);
     void setP1(Point new_p1);
     void setP2(Point new_p2);
-    [[nodiscard]] Point getP0() const;
+    //Getter for p0, p1 and p2
+    Point getP0() const { return p0; }
+    Point getP1() const { return p1; }
+    Point getP2() const { return p2; }
 private:
     Point p0;
     Point p1;

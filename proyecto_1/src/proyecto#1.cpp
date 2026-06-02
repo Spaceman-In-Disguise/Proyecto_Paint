@@ -20,6 +20,7 @@ class proyecto1 : public Engine2D {
         IDLE
     };
     int state = IDLE;
+    bool isEditing = false;
 
     enum BrushTypes {
         LINE,
@@ -34,7 +35,67 @@ class proyecto1 : public Engine2D {
     Shape* selectedShape = nullptr;
     std::vector<Shape*> lastShapeHits;
     size_t selectionCycleIndex = 0;
-    int deltaMouse[2] = {0, 0};
+    bool isDragging = false;
+    bool isDraggingHandle = false;
+    int activeControlPointIndex = -1;
+    int dragLastX = 0;
+    int dragLastY = 0;
+
+    static bool isNearHandle(const Point& cursor, const Point& handle, int radius = 7) {
+        const int dx = cursor.x - handle.x;
+        const int dy = cursor.y - handle.y;
+        return (dx * dx) + (dy * dy) <= radius * radius;
+    }
+
+    static void setControlPoint(Shape* shape, const int controlPointIndex, const Point& point) {
+        if (auto line = dynamic_cast<Line*>(shape)) {
+            if (controlPointIndex == 0) {
+                line->setP0(point);
+            } else if (controlPointIndex == 1) {
+                line->setP1(point);
+            }
+            return;
+        }
+
+        if (auto rectangle = dynamic_cast<Rectangle*>(shape)) {
+            if (controlPointIndex == 0) {
+                rectangle->setP0(point);
+            } else if (controlPointIndex == 1) {
+                rectangle->setP1(point);
+            }
+            return;
+        }
+
+        if (auto triangle = dynamic_cast<Triangle*>(shape)) {
+            if (controlPointIndex == 0) {
+                triangle->setP0(point);
+            } else if (controlPointIndex == 1) {
+                triangle->setP1(point);
+            } else if (controlPointIndex == 2) {
+                triangle->setP2(point);
+            }
+            return;
+        }
+
+        if (auto ellipse = dynamic_cast<Ellipse*>(shape)) {
+            if (controlPointIndex == 0) {
+                ellipse->setP0(point);
+            } else if (controlPointIndex == 1) {
+                ellipse->setP1(point);
+            }
+        }
+    }
+
+    static int getNearbyControlPointIndex(Shape* shape, const Point& cursor, int radius = 7) {
+        const std::vector<Point> controlPoints = Canvas::getControlPoints(shape);
+        for (std::size_t index = 0; index < controlPoints.size(); ++index) {
+            if (isNearHandle(cursor, controlPoints[index], radius)) {
+                return static_cast<int>(index);
+            }
+        }
+
+        return -1;
+    }
 
 public:
     proyecto1(): Engine2D(1024, 600, "Proyecto #1 - Gestion y Despliegue de Primitivas"),
@@ -59,8 +120,27 @@ public:
             if (ImGui::GetIO().WantCaptureMouse) {
                 return;
             }
+            const Point cursor(static_cast<int>(x), static_cast<int>(y));
+            if (state == EDITING && selectedShape != nullptr) {
+                activeControlPointIndex = getNearbyControlPointIndex(selectedShape, cursor);
+                if (activeControlPointIndex >= 0) {
+                    isDragging = true;
+                    isDraggingHandle = true;
+                    dragLastX = cursor.x;
+                    dragLastY = cursor.y;
+                    return;
+                }
+
+                if (isNearHandle(cursor, selectedShape->position)) {
+                    isDragging = true;
+                    isDraggingHandle = false;
+                    dragLastX = cursor.x;
+                    dragLastY = cursor.y;
+                    return;
+                }
+            }
             if (state == SELECTING) {
-                const std::vector<Shape*> shapeHits = tree.getShapesByLeaf(Point(static_cast<int>(x), static_cast<int>(y)));
+                const std::vector<Shape*> shapeHits = tree.getShapesByLeaf(cursor);
                 if (shapeHits.empty()) {
                     selectedShape = nullptr;
                     lastShapeHits.clear();
@@ -111,6 +191,9 @@ public:
 
     void onMouseButtonUp(int button, double x, double y) override {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            isDragging = false;
+            isDraggingHandle = false;
+            activeControlPointIndex = -1;
             if (state == DRAWING) {
                 state = IDLE;
                 currentResize = NONE;
@@ -119,14 +202,29 @@ public:
     }
     // Evento de movimiento continuo
     void onMouseMove(double x, double y) override {
-        deltaMouse[0] = static_cast<int>(x) - deltaMouse[0];
-        deltaMouse[1] = static_cast<int>(y) - deltaMouse[1];
         if (ImGui::GetIO().WantCaptureMouse) {
             return;
         }
+        const int ix = static_cast<int>(x);
+        const int iy = static_cast<int>(y);
+
+        if (isDragging && selectedShape != nullptr) {
+            if (isDraggingHandle) {
+                setControlPoint(selectedShape, activeControlPointIndex, Point(ix, iy));
+                return;
+            }
+
+            const int deltaX = ix - dragLastX;
+            const int deltaY = iy - dragLastY;
+            if (deltaX != 0 || deltaY != 0) {
+                selectedShape->move(deltaX, deltaY);
+                dragLastX = ix;
+                dragLastY = iy;
+            }
+            return;
+        }
+
         if (state == DRAWING) {
-            int ix = static_cast<int>(x);
-            int iy = static_cast<int>(y);
             switch (currentResize) {
                 case NONE:
                     break;
@@ -161,6 +259,9 @@ public:
         canvas.draw();
         if (selectedShape != nullptr) {
             canvas.highLightShape(selectedShape);
+            if (isEditing) {
+                canvas.drawControlPoints(selectedShape);
+            }
         }
         tree.rebuild(canvas.getShapes());
         if (showTree){tree.draw();}
@@ -227,9 +328,11 @@ public:
                 }
             }
             ImGui::Separator();
-                ImGui::Text("Posicion: (%d, %d)", selectedShape->position.x, selectedShape->position.y);
+                ImGui::Text("Position: (%d, %d)", selectedShape->position.x, selectedShape->position.y);
                 ImGui::Text("Bounding Box: Top-Left(%d, %d) - Bottom-Right(%d, %d)", selectedShape->boundingBox[0].x, selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].x, selectedShape->boundingBox[1].y);
-                
+                if(ImGui::Checkbox("Edit Mode", &isEditing)) {
+                    state = isEditing ? EDITING : SELECTING;
+                }
             ImGui::Separator();
             if(ImGui::Button("Move Up")) {
                 canvas.moveUp(selectedShape);

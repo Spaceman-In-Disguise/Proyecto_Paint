@@ -19,7 +19,12 @@ public:
         p1.x += deltaX;
         p1.y += deltaY;
     }
+    void setP0(Point new_p0);
     void setP1(Point new_p1);
+
+    //Getter for p0 and p1
+    Point getP0() const { return p0; }
+    Point getP1() const { return p1; }
 private:
     Point p0;
     Point p1;

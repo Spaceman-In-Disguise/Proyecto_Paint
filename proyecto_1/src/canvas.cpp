@@ -48,6 +48,44 @@ void Canvas::draw() {
     }
 }
 
+std::vector<Point> Canvas::getControlPoints(Shape* shape) {
+    // Return the control points based on the shape type
+    if (auto line = dynamic_cast<Line*>(shape)) {
+        return {line->getP0(), line->getP1()};
+    } else if (auto rectangle = dynamic_cast<Rectangle*>(shape)) {
+        return {rectangle->getP0(), rectangle->getP1()};
+    } else if (auto triangle = dynamic_cast<Triangle*>(shape)) {
+        return {triangle->getP0(), triangle->getP1(), triangle->getP2()};
+    } else if (auto ellipse = dynamic_cast<Ellipse*>(shape)) {
+        return {ellipse->getP0(), ellipse->getP1()};
+    }
+
+    return {};
+}
+
+Point Canvas::getMiddlePoint(Shape* shape) {
+    return shape ->position;
+}
+
+void Canvas::drawControlPoints(Shape *shape) {
+    //Get control points plus the middle point
+    std::vector<Point> controlPoints = getControlPoints(shape);
+    controlPoints.push_back(getMiddlePoint(shape));
+
+    //Draw a small square with a point in the midle for each control point
+    //Alternate the color between red and black for each point so they are easier to distinguish
+    for (const auto& point : controlPoints) {
+        for (int x = point.x - 3; x <= point.x + 3; ++x) {
+            for (int y = point.y - 3; y <= point.y + 3; ++y) {
+                const auto color = (x + y) % 2 == 0 ? Color(1, 0, 0) : Color(0, 0, 0);
+                pixelWriter(x, y, color);
+            }
+        }
+    }
+
+
+}
+
 void Canvas::highLightShape(Shape *shape) const {
     if (shape == nullptr) {
         return;

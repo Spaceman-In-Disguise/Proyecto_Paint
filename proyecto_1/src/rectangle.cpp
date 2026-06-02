@@ -20,8 +20,13 @@ Rectangle::Rectangle(Point p0, Point p1, const Color& color, PixelCallback pixel
 void Rectangle::draw() {
     canvas = Canvas(pixelWriter);
 
-    boundingBox[0] = Point(std::min(p0.x,p1.x), std::min(p0.y, p1.y));
-    boundingBox[1] = Point(std::max(p0.x,p1.x), std::max(p0.y, p1.y));
+    const int minX = std::min(p0.x, p1.x);
+    const int maxX = std::max(p0.x, p1.x);
+    const int minY = std::min(p0.y, p1.y);
+    const int maxY = std::max(p0.y, p1.y);
+
+    boundingBox[0] = Point(minX, minY);
+    boundingBox[1] = Point(maxX, maxY);
 
     const Point topLeft = p0;
     const Point topRight(p1.x, p0.y);
@@ -41,7 +46,7 @@ void Rectangle::draw() {
     const int width = abs(bottomRight.x - topLeft.x);
     const int height = abs(bottomRight.y - topLeft.y);
 
-    position = Point((std::min(p0.x,p1.x) + width) / 2, std::min(p0.y, p1.y) + height / 2);
+    position = Point((minX + maxX) / 2, (minY + maxY) / 2);
 
     if (fill == true) {
         for (int i = 1; i < width; ++i) {
@@ -56,4 +61,8 @@ void Rectangle::draw() {
 
 void Rectangle::setP1(Point new_p1) {
     this->p1 = new_p1;
+}
+
+void Rectangle::setP0(Point new_p0) {
+    this->p0 = new_p0;
 }

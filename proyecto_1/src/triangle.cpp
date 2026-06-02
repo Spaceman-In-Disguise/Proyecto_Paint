@@ -74,8 +74,8 @@ void Triangle::draw() {
     if (t2.y < t1.y) {std::swap(t2, t1);}
 
     position = Point((t0.x + t1.x + t2.x) / 3, (t0.y + t1.y + t2.y) / 3);
-    boundingBox[0] = Point(std::min(std::min(p0.x,p1.x), p2.x), t0.y);
-    boundingBox[1] = Point(std::max(std::max(p0.x,p1.x), p2.y), t2.y);
+    boundingBox[0] = Point(std::min(std::min(p0.x, p1.x), p2.x), std::min(std::min(p0.y, p1.y), p2.y));
+    boundingBox[1] = Point(std::max(std::max(p0.x, p1.x), p2.x), std::max(std::max(p0.y, p1.y), p2.y));
 
     canvas = Canvas(pixelWriter);
 
@@ -123,10 +123,10 @@ void Triangle::setP1(Point new_p1) {
     this->p1 = new_p1;
 }
 
-void Triangle::setP2(Point new_p2) {
-    this->p2 = new_p2;
+void Triangle::setP0(Point new_p0) {
+    this->p0 = new_p0;
 }
 
-Point Triangle::getP0() const {
-    return p0;
+void Triangle::setP2(Point new_p2) {
+    this->p2 = new_p2;
 }

@@ -127,3 +127,7 @@ void Ellipse::draw() {
 void Ellipse::setP1(Point new_p1) {
     this->p1 = new_p1;
 }
+
+void Ellipse::setP0(Point new_p0) {
+    this->p0 = new_p0;
+}

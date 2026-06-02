@@ -27,6 +27,11 @@ class Canvas {
     [[nodiscard]] Shape* getLastShape() const;
 
     Shape* selectShape();
+    static std::vector<Point> getControlPoints(Shape* shape);
+
+    static Point getMiddlePoint(Shape* shape) ;
+
+    void drawControlPoints(Shape* shape);
 
     void highLightShape(Shape* shape) const;
 
@@ -51,7 +56,8 @@ class Canvas {
     void moveBottom(Shape* shape);
     void deleteShape(Shape* shape);
     void clearAll();
-private:
+
+    private:
     std::vector<std::unique_ptr<Shape>> shapes;
     PixelCallback pixelWriter;
 
