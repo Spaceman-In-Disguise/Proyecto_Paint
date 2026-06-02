@@ -11,14 +11,13 @@
 Rectangle::Rectangle(Point p0, Point p1, const Color& color, PixelCallback pixelWriter)
     : p0(p0)
     , p1(p1)
-    , canvas(pixelWriter)
     , pixelWriter(std::move(pixelWriter)) {
     borderColor = color;
     fillColor = color;
 }
 
 void Rectangle::draw() {
-    canvas = Canvas(pixelWriter);
+    Canvas localCanvas(pixelWriter);
 
     const int minX = std::min(p0.x, p1.x);
     const int maxX = std::max(p0.x, p1.x);
@@ -33,15 +32,15 @@ void Rectangle::draw() {
     const Point bottomRight = p1;
     const Point bottomLeft(p0.x, p1.y);
 
-    Line* topEdge = canvas.addLine(topLeft, borderColor);
-    Line* leftEdge = canvas.addLine(bottomLeft, borderColor);
-    canvas.resizeLine(topRight, topEdge);
-    canvas.resizeLine(bottomRight, leftEdge);
+    Line* topEdge = localCanvas.addLine(topLeft, borderColor);
+    Line* leftEdge = localCanvas.addLine(bottomLeft, borderColor);
+    localCanvas.resizeLine(topRight, topEdge);
+    localCanvas.resizeLine(bottomRight, leftEdge);
 
-    Line* bottomEdge = canvas.addLine(topLeft, borderColor);
-    Line* rightEdge = canvas.addLine(topRight, borderColor);
-    canvas.resizeLine(bottomLeft, bottomEdge);
-    canvas.resizeLine(bottomRight, rightEdge);
+    Line* bottomEdge = localCanvas.addLine(topLeft, borderColor);
+    Line* rightEdge = localCanvas.addLine(topRight, borderColor);
+    localCanvas.resizeLine(bottomLeft, bottomEdge);
+    localCanvas.resizeLine(bottomRight, rightEdge);
 
     const int width = abs(bottomRight.x - topLeft.x);
     const int height = abs(bottomRight.y - topLeft.y);
@@ -56,7 +55,7 @@ void Rectangle::draw() {
         }
     }
 
-    canvas.draw();
+    localCanvas.draw();
 }
 
 void Rectangle::setP1(Point new_p1) {

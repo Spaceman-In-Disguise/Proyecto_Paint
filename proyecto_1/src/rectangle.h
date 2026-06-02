@@ -7,7 +7,7 @@
 #include "canvas.h"
 #include <functional>
 
-class Rectangle : public Shape{
+class Rectangle : public CloneableShape<Rectangle>{
 public:
     using PixelCallback = std::function<void(int, int, const Color&)>;
 
@@ -29,7 +29,6 @@ public:
 private:
     Point p0;
     Point p1;
-    Canvas canvas;
     PixelCallback pixelWriter;
 };
 

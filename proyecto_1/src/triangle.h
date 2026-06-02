@@ -4,10 +4,9 @@
 #define PROYECTO_1_TRIANGLE_H
 
 #include "Shape.h"
-#include "canvas.h"
 #include <functional>
 
-class Triangle : public Shape {
+class Triangle : public CloneableShape<Triangle> {
 public:
     using PixelCallback = std::function<void(int, int, const Color&)>;
 
@@ -33,7 +32,6 @@ private:
     Point p0;
     Point p1;
     Point p2;
-    Canvas canvas;
     PixelCallback pixelWriter;
 };
 

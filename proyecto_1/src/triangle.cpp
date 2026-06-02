@@ -4,6 +4,7 @@
 
 #include "triangle.h"
 
+#include "canvas.h"
 #include "line.h"
 
 #include <cmath>
@@ -52,7 +53,6 @@ Triangle::Triangle(Point p0, Point p1, Point p2, const Color& color, PixelCallba
     : p0(p0)
     , p1(p1)
     , p2(p2)
-    , canvas(pixelWriter)
     , pixelWriter(std::move(pixelWriter)) {
     borderColor = color;
     fillColor = color;
@@ -77,15 +77,15 @@ void Triangle::draw() {
     boundingBox[0] = Point(std::min(std::min(p0.x, p1.x), p2.x), std::min(std::min(p0.y, p1.y), p2.y));
     boundingBox[1] = Point(std::max(std::max(p0.x, p1.x), p2.x), std::max(std::max(p0.y, p1.y), p2.y));
 
-    canvas = Canvas(pixelWriter);
+    Canvas localCanvas(pixelWriter);
 
-    Line* edgeA = canvas.addLine(p0, borderColor);
-    Line* edgeB = canvas.addLine(p1, borderColor);
-    Line* edgeC = canvas.addLine(p2, borderColor);
+    Line* edgeA = localCanvas.addLine(p0, borderColor);
+    Line* edgeB = localCanvas.addLine(p1, borderColor);
+    Line* edgeC = localCanvas.addLine(p2, borderColor);
 
-    canvas.resizeLine(p1, edgeA);
-    canvas.resizeLine(p2, edgeB);
-    canvas.resizeLine(p0, edgeC);
+    localCanvas.resizeLine(p1, edgeA);
+    localCanvas.resizeLine(p2, edgeB);
+    localCanvas.resizeLine(p0, edgeC);
 
 
     if (fill) {
@@ -116,7 +116,7 @@ void Triangle::draw() {
             }
         }
     }
-    canvas.draw();
+    localCanvas.draw();
 }
 
 void Triangle::setP1(Point new_p1) {

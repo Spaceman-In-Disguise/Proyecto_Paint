@@ -6,7 +6,7 @@
 #include "Shape.h"
 #include <functional>
 
-class Line : public Shape {
+class Line : public CloneableShape<Line> {
 public:
 	using PixelCallback = std::function<void(int, int, const Color&)>;
 

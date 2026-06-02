@@ -4,6 +4,8 @@
 #include "quadTree.h"
 #include "triangle.h"
 #include "ellipse.h"
+#include "editor_memento.h"
+#include "history_manager.h"
 #include <iostream>
 
 class proyecto1 : public Engine2D {
@@ -40,6 +42,49 @@ class proyecto1 : public Engine2D {
     int activeControlPointIndex = -1;
     int dragLastX = 0;
     int dragLastY = 0;
+
+    //UNDO - REDO Logic
+    HistoryManager history;
+
+    std::shared_ptr<EditorMemento> createMemento() {
+        std::vector<std::unique_ptr<Shape>> clonedShapes;
+        for (Shape* shape : canvas.getShapes()) {
+            clonedShapes.push_back(shape->clone());
+        }
+        return std::make_shared<EditorMemento>(std::move(clonedShapes), backgroundColor);
+    }
+
+    void restoreFromMemento(std::shared_ptr<EditorMemento> memento) {
+        if (!memento) return;
+
+        backgroundColor = memento->getBackgroundColor();
+
+        std::vector<std::unique_ptr<Shape>> restoredShapes;
+        for (const auto& shapePtr : memento->getShapes()) {
+            restoredShapes.push_back(shapePtr->clone());
+        }
+        canvas.setShapes(std::move(restoredShapes));
+
+        selectedShape = nullptr;
+        state = IDLE;
+    }
+
+    void saveState() {
+        history.save(createMemento());
+    }
+
+    void performUndo() {
+        if (auto previousState = history.undo(createMemento())) {
+            restoreFromMemento(previousState);
+        }
+    }
+
+    void performRedo() {
+        if (auto nextState = history.redo(createMemento())) {
+            restoreFromMemento(nextState);
+        }
+    }
+
 
     static bool isNearHandle(const Point& cursor, const Point& handle, int radius = 7) {
         const int dx = cursor.x - handle.x;
@@ -107,9 +152,17 @@ public:
 
         }
 
-    // Eventos
+    // Events
     void onkeyDown(int key) override {
-        if (key == GLFW_KEY_SPACE) {
+
+        if (const bool ctrlPressed = ImGui::GetIO().KeyCtrl; ctrlPressed && key == GLFW_KEY_Z) {
+            performUndo();
+        }
+        else if (ctrlPressed && key == GLFW_KEY_Y) {
+            performRedo();
+        }
+        else if (key == GLFW_KEY_SPACE) {
+            saveState(); // Save before clearing everything
             clear(backgroundColor);
             std::cout << brush << std::endl;
         }
@@ -123,7 +176,7 @@ public:
             const Point cursor(static_cast<int>(x), static_cast<int>(y));
             if (state == EDITING && selectedShape != nullptr) {
                 activeControlPointIndex = getNearbyControlPointIndex(selectedShape, cursor);
-                if (activeControlPointIndex >= 0) {
+                if (activeControlPointIndex >= 0) { // Moving handle to reshape
                     isDragging = true;
                     isDraggingHandle = true;
                     dragLastX = cursor.x;
@@ -131,7 +184,7 @@ public:
                     return;
                 }
 
-                if (isNearHandle(cursor, selectedShape->position)) {
+                if (isNearHandle(cursor, selectedShape->position)) { //Moving whole shape
                     isDragging = true;
                     isDraggingHandle = false;
                     dragLastX = cursor.x;

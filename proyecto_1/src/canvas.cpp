@@ -68,12 +68,10 @@ Point Canvas::getMiddlePoint(Shape* shape) {
 }
 
 void Canvas::drawControlPoints(Shape *shape) {
-    //Get control points plus the middle point
     std::vector<Point> controlPoints = getControlPoints(shape);
     controlPoints.push_back(getMiddlePoint(shape));
 
-    //Draw a small square with a point in the midle for each control point
-    //Alternate the color between red and black for each point so they are easier to distinguish
+    //Draw a small square with a checkker pattern
     for (const auto& point : controlPoints) {
         for (int x = point.x - 3; x <= point.x + 3; ++x) {
             for (int y = point.y - 3; y <= point.y + 3; ++y) {
