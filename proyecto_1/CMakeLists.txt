@@ -19,7 +19,11 @@ add_executable (proyecto1 "src/proyecto#1.cpp" "src/proyecto#1.h" "src/engine2D.
         src/quadNode.cpp
         src/quadNode.h
         src/editor_memento.h
-        src/history_manager.h)
+        src/history_manager.h
+        src/save_manager.cpp
+        src/save_manager.h
+        src/bezier.cpp
+        src/bezier.h)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET proyecto1 PROPERTY CXX_STANDARD 20)

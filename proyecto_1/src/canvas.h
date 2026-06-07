@@ -14,6 +14,7 @@ class Line;
 class Rectangle;
 class Triangle;
 class Ellipse;
+class Bezier;
 
 class Canvas {
     public:
@@ -46,6 +47,11 @@ class Canvas {
 
     Ellipse* addEllipse(Point p0, bool fill, Color borderColor, Color fillColor);
     static void resizeEllipse(Point p1, Shape* ellipse);
+
+    Bezier* addBezier(Point p, Color color);
+    Bezier* addBezier(const std::vector<Point>& points, Color color);
+
+    static void resizeBezier(Point p1, Shape* bezier);
 
     std::vector<Shape*> getShapes() const;
 

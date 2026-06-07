@@ -6,7 +6,11 @@
 #include "ellipse.h"
 #include "editor_memento.h"
 #include "history_manager.h"
+#include "save_manager.h"
+#include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
 class proyecto1 : public Engine2D {
     Canvas canvas;
@@ -29,6 +33,7 @@ class proyecto1 : public Engine2D {
         RECTANGLE,
         TRIANGLE,
         ELLIPSE,
+        BEZIER,
         NONE
       };
     int brush = LINE;
@@ -75,6 +80,99 @@ class proyecto1 : public Engine2D {
 
     void saveState() {
         history.save(createMemento());
+    }
+    char paintingFilePath[260] = "painting.txt";
+
+    bool savePaintingToFile(const std::string& filePath) const {
+        return SaveManager::savePainting(filePath, canvas.getShapes(), backgroundColor);
+    }
+    bool loadPaintingFromFile(const std::string& filePath) {
+        std::vector<SavedShape> loadedShapes;
+        Color loadedBackground = backgroundColor;
+
+        if (!SaveManager::loadPainting(filePath, loadedShapes, loadedBackground)) {
+            return false;
+        }
+
+        saveState();
+        backgroundColor = loadedBackground;
+        canvas.clearAll();
+
+        // Reconstruct the canvas using data read by the SaveManager
+        for (const auto& record : loadedShapes) {
+            if (record.points.empty()) continue;
+
+            switch (record.type) {
+                case SavedShapeType::Line: {
+                    if (record.points.size() >= 2) {
+                        if (Line* shape = canvas.addLine(record.points[0], record.borderColor)) {
+                            shape->setP1(record.points[1]);
+                            shape->borderColor = record.borderColor;
+                            shape->fillColor = record.fillColor;
+                            shape->fill = record.fill;
+                        }
+                    }
+                    break;
+                }
+                case SavedShapeType::Rectangle: {
+                    if (record.points.size() >= 2) {
+                        if (Rectangle* shape = canvas.addRectangle(record.points[0], record.fill, record.borderColor, record.fillColor)) {
+                            shape->setP1(record.points[1]);
+                            shape->borderColor = record.borderColor;
+                            shape->fillColor = record.fillColor;
+                            shape->fill = record.fill;
+                        }
+                    }
+                    break;
+                }
+                case SavedShapeType::Triangle: {
+                    if (record.points.size() >= 3) {
+                        if (Triangle* shape = canvas.addTriangle(record.points[0], record.fill, record.borderColor, record.fillColor)) {
+                            shape->setP1(record.points[1]);
+                            shape->setP2(record.points[2]);
+                            shape->borderColor = record.borderColor;
+                            shape->fillColor = record.fillColor;
+                            shape->fill = record.fill;
+                        }
+                    }
+                    break;
+                }
+                case SavedShapeType::Ellipse: {
+                    if (record.points.size() >= 2) {
+                        if (Ellipse* shape = canvas.addEllipse(record.points[0], record.fill, record.borderColor, record.fillColor)) {
+                            shape->setP1(record.points[1]);
+                            shape->borderColor = record.borderColor;
+                            shape->fillColor = record.fillColor;
+                            shape->fill = record.fill;
+                        }
+                    }
+                    break;
+                }
+                case SavedShapeType::Bezier: {
+                    if (record.points.size() >= 2) {
+                        if (Bezier* shape = canvas.addBezier(record.points, record.borderColor)) {
+                            shape->borderColor = record.borderColor;
+                            shape->fillColor = record.fillColor;
+                            shape->fill = record.fill;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Reset all application states
+        selectedShape = nullptr;
+        lastShapeHits.clear();
+        selectionCycleIndex = 0;
+        isDragging = false;
+        isDraggingHandle = false;
+        activeControlPointIndex = -1;
+        state = IDLE;
+        isEditing = false;
+        currentResize = NONE;
+
+        return true;
     }
 
     void performUndo() {
@@ -271,6 +369,11 @@ public:
                         saveState();
                         canvas.addEllipse(Point(static_cast<int>(x), static_cast<int>(y)), filling, borderColor, fillColor);
                         break;
+                    case BEZIER:
+                        currentResize = BEZIER;
+                        saveState();
+                        canvas.addBezier(Point(static_cast<int>(x), static_cast<int>(y)), borderColor);
+                        break;
 
                 }
             }
@@ -337,6 +440,11 @@ public:
                         Canvas::resizeEllipse(Point(ix, iy), latestShape);
                     }
                     break;
+                case BEZIER:
+                    if (Shape* latestShape = canvas.getLastShape(); latestShape != nullptr) {
+                        Canvas::resizeBezier(Point(ix, iy), latestShape);
+                    }
+                    break;
 
 
             }
@@ -358,6 +466,17 @@ public:
     void drawUI() override {
         ImGui::Begin("Herramientas");
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+        static char paintingPath[260] = "painting.txt";
+        ImGui::InputText("Painting File", paintingPath, sizeof(paintingPath));
+        if (ImGui::Button("Save Painting")) {
+            savePaintingToFile(paintingPath);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Load Painting")) {
+            loadPaintingFromFile(paintingPath);
+        }
+        ImGui::Separator();
 
         static bool isEditingBg = false;
 
@@ -398,6 +517,7 @@ public:
         ImGui::RadioButton("Rectangle", &brush, RECTANGLE); ImGui::SameLine();
         ImGui::RadioButton("Triangle", &brush, TRIANGLE);ImGui::SameLine();
         ImGui::RadioButton("Ellipse", &brush, ELLIPSE);
+        ImGui::RadioButton("Bezier", &brush, BEZIER);
         ImGui::Checkbox("Filling", &filling);
         ImGui::Checkbox("Show Tree", &showTree);
         ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine(); //So it can wait to draw a shape

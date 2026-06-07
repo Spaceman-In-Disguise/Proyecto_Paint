@@ -9,6 +9,7 @@
 #include "ellipse.h"
 #include "rectangle.h"
 #include "triangle.h"
+#include "bezier.h"
 
 #include <algorithm>
 #include <cmath>
@@ -76,6 +77,8 @@ std::vector<Point> Canvas::getControlPoints(Shape* shape) {
         return {triangle->getP0(), triangle->getP1(), triangle->getP2()};
     } else if (auto ellipse = dynamic_cast<Ellipse*>(shape)) {
         return {ellipse->getP0(), ellipse->getP1()};
+    } else if (auto bezier = dynamic_cast<Bezier*>(shape)) {
+        return bezier->getPoints();
     }
 
     return {};
@@ -222,6 +225,38 @@ void Canvas::resizeEllipse(const Point p1, Shape* ellipse) {
     }
 }
 
+Bezier* Canvas::addBezier(const Point p, Color color) {
+    std::vector<Point> initialPoints = {p, p};
+
+    Shape* newShape = addShape(std::make_unique<Bezier>(
+        initialPoints,
+        color,
+        pixelWriter
+    ));
+
+    newShape->borderColor = color;
+    newShape->fillColor = color;
+    return dynamic_cast<Bezier*>(newShape);
+}
+
+Bezier* Canvas::addBezier(const std::vector<Point>& points, Color color) {
+    Shape* newShape = addShape(std::make_unique<Bezier>(
+        points,
+        color,
+        pixelWriter
+    ));
+
+    newShape->borderColor = color;
+    newShape->fillColor = color;
+    return dynamic_cast<Bezier*>(newShape);
+}
+
+void Canvas::resizeBezier(const Point p1, Shape* bezier) {
+    if (const auto latestBezier = dynamic_cast<Bezier*>(bezier); latestBezier != nullptr) {
+        size_t lastIndex = latestBezier->getPoints().size() - 1;
+        latestBezier->setPoint(lastIndex, p1);
+    }
+}
 void Canvas::moveUp(Shape* shape) {
     if (!shape) return;
 
