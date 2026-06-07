@@ -23,7 +23,18 @@ void Bezier::setPoint(size_t index, Point p) {
 }
 
 void Bezier::addPoint(Point p) {
-    controlPoints.push_back(p);
+    if (controlPoints.size() >= 2) {
+        controlPoints.insert(controlPoints.end() - 1, p);
+    } else {
+        controlPoints.push_back(p);
+    }
+}
+
+void Bezier::removeLatestPoint() {
+    // A Bezier curve must always keep at least its Start and End points
+    if (controlPoints.size() > 2) {
+        controlPoints.erase(controlPoints.end() - 2);
+    }
 }
 
 // Evaluate the N-degree curve at time t using De Casteljau's Algorithm

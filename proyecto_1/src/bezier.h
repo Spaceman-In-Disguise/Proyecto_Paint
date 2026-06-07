@@ -20,6 +20,7 @@ public:
     // Manage control points dynamically
     void setPoint(size_t index, Point p);
     void addPoint(Point p);
+    void removeLatestPoint();
     
     std::vector<Point> getPoints() const { return controlPoints; }
     size_t getDegree() const { return controlPoints.empty() ? 0 : controlPoints.size() - 1; }

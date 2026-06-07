@@ -90,8 +90,27 @@ Point Canvas::getMiddlePoint(Shape* shape) {
 
 void Canvas::drawControlPoints(Shape *shape) {
     std::vector<Point> controlPoints = getControlPoints(shape);
-    controlPoints.push_back(getMiddlePoint(shape));
 
+    //Draw Control Polygon for Bezier
+    if (dynamic_cast<Bezier*>(shape) && controlPoints.size() > 1) {
+
+        Canvas tempCanvas(this->pixelWriter);
+        Color polygonColor(0.4f, 0.6f, 0.8f);
+
+        for (size_t i = 0; i < controlPoints.size() - 1; ++i) {
+            Line* tempLine = tempCanvas.addLine(controlPoints[i], polygonColor);
+            tempLine->setP1(controlPoints[i + 1]);
+        }
+        tempCanvas.draw();
+    }
+    const auto middlePoint = getMiddlePoint(shape);
+    //Draw a small square with a checkker pattern
+    for (int x = middlePoint.x - 3; x <= middlePoint.x + 3; ++x) {
+        for (int y = middlePoint.y - 3; y <= middlePoint.y + 3; ++y) {
+            const auto color = (x + y) % 2 == 0 ? Color(0.6, 0.6, 0.6) : Color(0, 0, 0);
+            pixelWriter(x, y, color);
+        }
+    }
     //Draw a small square with a checkker pattern
     for (const auto& point : controlPoints) {
         for (int x = point.x - 3; x <= point.x + 3; ++x) {

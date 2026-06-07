@@ -230,6 +230,11 @@ class proyecto1 : public Engine2D {
             } else if (controlPointIndex == 1) {
                 ellipse->setP1(point);
             }
+            return;
+        }
+
+        if (auto bezier = dynamic_cast<Bezier*>(shape)) {
+            bezier->setPoint(controlPointIndex, point);
         }
     }
 
@@ -263,11 +268,7 @@ public:
         else if (ctrlPressed && key == GLFW_KEY_Y) {
             performRedo();
         }
-        else if (key == GLFW_KEY_SPACE) {
-            saveState(); // Save before clearing everything
-            clear(backgroundColor);
-            std::cout << brush << std::endl;
-        }
+
     }
 
     void onMouseButtonDown(const int button, const double x, const double y) override {
@@ -304,6 +305,7 @@ public:
                     return;
                 }
                 activeControlPointIndex = getNearbyControlPointIndex(selectedShape, cursor);
+                std::cout << activeControlPointIndex << std::endl;
                 if (activeControlPointIndex >= 0) { // Moving handle to reshape
                     saveState();
                     isDragging = true;
@@ -523,7 +525,19 @@ public:
         ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine(); //So it can wait to draw a shape
         ImGui::RadioButton("Selection", &state, SELECTING);
         if (ImGui::Button("Clear All")) {
+            saveState();
             canvas.clearAll();
+
+            selectedShape = nullptr;
+            lastShapeHits.clear();
+            selectionCycleIndex = 0;
+
+            state = IDLE;
+            isEditing = false;
+            isDragging = false;
+            isDraggingHandle = false;
+            activeControlPointIndex = -1;
+            currentResize = NONE;
         }
         ImGui::End();
 
@@ -579,6 +593,40 @@ public:
                 ImGui::Text("Bounding Box: Top-Left(%d, %d) - Bottom-Right(%d, %d)", selectedShape->boundingBox[0].x, selectedShape->boundingBox[0].y, selectedShape->boundingBox[1].x, selectedShape->boundingBox[1].y);
                 if(ImGui::Checkbox("Edit Mode", &isEditing)) {
                     state = isEditing ? EDITING : SELECTING;
+                }
+
+                if (auto bezier = dynamic_cast<Bezier*>(selectedShape)) {
+                    ImGui::Separator();
+                    ImGui::Text("Grado de Curva: %zu", bezier->getDegree());
+
+                    if (ImGui::Button("Add Point")) {
+                        saveState();
+
+                        std::vector<Point> pts = bezier->getPoints();
+                        Point endPoint = pts.back();
+                        Point prevPoint = pts[pts.size() - 2];
+
+                        // Place the new handle exactly halfway between the endpoint
+                        // and whatever point comes right before it
+                        Point newHandle(
+                            prevPoint.x + (endPoint.x - prevPoint.x) / 2,
+                            prevPoint.y + (endPoint.y - prevPoint.y) / 2
+                        );
+
+                        bezier->addPoint(newHandle);
+                    }
+
+                    ImGui::SameLine();
+
+                    ImGui::BeginDisabled(bezier->getPoints().size() <= 2);
+
+                    if (ImGui::Button("Remove Point")) {
+                        saveState();
+                        bezier->removeLatestPoint();
+                    }
+
+                    // Safely pops the state, regardless of whether the point was just removed
+                    ImGui::EndDisabled();
                 }
             ImGui::Separator();
             if(ImGui::Button("Move Up")) {
