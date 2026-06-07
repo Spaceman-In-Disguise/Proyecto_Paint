@@ -399,11 +399,29 @@ public:
         if (ImGui::GetIO().WantCaptureMouse) {
             return;
         }
-        const int ix = static_cast<int>(x);
-        const int iy = static_cast<int>(y);
+       int ix = static_cast<int>(x);
+       int iy = static_cast<int>(y);
 
         if (isDragging && selectedShape != nullptr) {
             if (isDraggingHandle) {
+                if (ImGui::GetIO().KeyCtrl &&
+                   (dynamic_cast<Rectangle*>(selectedShape) != nullptr || dynamic_cast<Ellipse*>(selectedShape) != nullptr)) {
+
+                    std::vector<Point> pts = Canvas::getControlPoints(selectedShape);
+
+                    if (pts.size() >= 2 && (activeControlPointIndex == 0 || activeControlPointIndex == 1)) {
+
+                        Point anchor = (activeControlPointIndex == 0) ? pts[1] : pts[0];
+
+                        int dx = ix - anchor.x;
+                        int dy = iy - anchor.y;
+
+                        int size = std::max(std::abs(dx), std::abs(dy));
+
+                        ix = anchor.x + (dx >= 0 ? size : -size);
+                        iy = anchor.y + (dy >= 0 ? size : -size);
+                    }
+                   }
                 setControlPoint(selectedShape, activeControlPointIndex, Point(ix, iy));
                 return;
             }
@@ -419,6 +437,19 @@ public:
         }
 
         if (state == DRAWING) {
+            Shape* latestShape = canvas.getLastShape();
+            if (latestShape != nullptr) {
+                // Constrain shapes to a 1:1 aspect ratio when holding Ctrl
+                if (ImGui::GetIO().KeyCtrl && (currentResize == RECTANGLE || currentResize == ELLIPSE)) {
+                    int dx = ix - latestShape->position.x;
+                    int dy = iy - latestShape->position.y;
+
+                    int size = std::max(std::abs(dx), std::abs(dy));
+
+                    ix = latestShape->position.x + (dx >= 0 ? size : -size);
+                    iy = latestShape->position.y + (dy >= 0 ? size : -size);
+                }
+            }
             switch (currentResize) {
                 case NONE:
                     break;
