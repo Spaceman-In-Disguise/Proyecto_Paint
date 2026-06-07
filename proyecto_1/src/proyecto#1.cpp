@@ -532,7 +532,7 @@ public:
             ImGui::Begin("Forma Seleccionada");
             ImGui::Separator();
             //Tell the user the type of the shape
-            ImGui::Text("Tipo: %s", dynamic_cast<Line*>(selectedShape) ? "Linea" : dynamic_cast<Rectangle*>(selectedShape) ? "Rectangulo" : dynamic_cast<Triangle*>(selectedShape) ? "Triangulo" : dynamic_cast<Ellipse*>(selectedShape) ? "Elipse" : "Desconocida");
+            ImGui::Text("Tipo: %s", dynamic_cast<Line*>(selectedShape) ? "Linea" : dynamic_cast<Rectangle*>(selectedShape) ? "Rectangulo" : dynamic_cast<Triangle*>(selectedShape) ? "Triangulo" : dynamic_cast<Ellipse*>(selectedShape) ? "Elipse" : dynamic_cast<Bezier*>(selectedShape) ? "Bezier" : "Desconocida");
             //Set the color of the border and fill in the UI
 
             static bool isEditingBorder = false;
