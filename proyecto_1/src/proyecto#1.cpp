@@ -544,8 +544,8 @@ public:
             fillColor.g = fillCol[1];
             fillColor.b = fillCol[2];
         }
-        ImGui::Text("Manten click izquierdo para dibujar.");
-        ImGui::Text("Presiona ESPACIO para limpiar.");
+        ImGui::Text("Choose Draw or Select to interact with the Canvas.");
+        ImGui::Text("Double Click on select Mode to enter Edit Mode.");
         ImGui::RadioButton("Line", &brush, LINE); ImGui::SameLine();
         ImGui::RadioButton("Rectangle", &brush, RECTANGLE); ImGui::SameLine();
         ImGui::RadioButton("Triangle", &brush, TRIANGLE);ImGui::SameLine();
@@ -553,7 +553,7 @@ public:
         ImGui::RadioButton("Bezier", &brush, BEZIER);
         ImGui::Checkbox("Filling", &filling);
         ImGui::Checkbox("Show Tree", &showTree);
-        ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine(); //So it can wait to draw a shape
+        ImGui::RadioButton("Draw", &state, IDLE);ImGui::SameLine();
         ImGui::RadioButton("Selection", &state, SELECTING);
         if (ImGui::Button("Clear All")) {
             saveState();
